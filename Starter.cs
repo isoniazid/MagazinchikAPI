@@ -92,7 +92,7 @@ public static class Starter
 
     public static void RegisterEndpoints(WebApplication app)
     {
-        new UserEndpoints().Define(app);
+        new ProductEndpoints().Define(app);
         new AuthEndpoints().Define(app);
     }
 
