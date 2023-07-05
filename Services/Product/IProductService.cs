@@ -11,5 +11,13 @@ namespace MagazinchikAPI.Services
         public Task<DTO.Review.ReviewDtoCreateResult> LeaveReview(ReviewDtoCreate dto, HttpContext context);
 
         public Task AddToFavourite(long productId, HttpContext context);
+
+        public Task RemoveFromFavourite(long productId, HttpContext context);
+
+        public Task AddToCart(long productId, HttpContext context);
+
+        public Task RemoveFromCart(long productId, HttpContext context);
+
+        public Task DecreaseFromCart(long productId, HttpContext context);
     }
 }

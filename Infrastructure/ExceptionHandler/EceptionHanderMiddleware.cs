@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentValidation;
+using MagazinchikAPI.Infrastructure.ExceptionHandler;
 
 public class ExceptionHandlerMiddleware
 {
@@ -27,6 +28,11 @@ public class ExceptionHandlerMiddleware
             await HandleValidatorMessageAsync(context, ex).ConfigureAwait(false);
         }
 
+        catch (NotImplementedException)
+        {
+            await HandleNotImplementedMessageAsync(context).ConfigureAwait(false);
+        }
+
         catch (Exception ex)
         {
             await HandleMessageAsync(context, ex).ConfigureAwait(false);
@@ -38,7 +44,7 @@ public class ExceptionHandlerMiddleware
     {
         context.Response.ContentType = "application/json";
 
-        var result = JsonSerializer.Serialize(new { statusCode = exception.StatusCode, message = exception.Message });
+        var result = JsonSerializer.Serialize(new APIErrorMessage(exception));
 
         context.Response.StatusCode = exception.StatusCode;
         await context.Response.WriteAsync(result);
@@ -53,6 +59,18 @@ public class ExceptionHandlerMiddleware
         var result = JsonSerializer.Serialize(new ValidatorErrorMessage(exception));
 
         await context.Response.WriteAsync(result);   
+    }
+
+    private static async Task HandleNotImplementedMessageAsync(HttpContext context)
+    // Если чего-то нет, то это нормально, что оно не работает
+    {
+        context.Response.ContentType = "application/json";
+
+        var result = JsonSerializer.Serialize(new { statusCode = 501, message = "Эта функция пока не реализована"});
+
+        context.Response.StatusCode = StatusCodes.Status501NotImplemented;
+        
+        await context.Response.WriteAsync(result);
     }
 
     private static async Task HandleMessageAsync(HttpContext context, Exception exception) 

@@ -5,8 +5,12 @@ namespace MagazinchikAPI.Model
         public long Id {get; set;}
         public long ProductCount { get; set; }
         
-        public long ProductId { get; set;}
+        public long? ProductId { get; set;}
         
-        public Product Product {get; set;} = new();
+        public User? User {get;set;}
+
+        public long UserId {get; set;}
+
+        public Product? Product {get; set;}
     }
 }

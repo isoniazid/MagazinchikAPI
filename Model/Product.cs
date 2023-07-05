@@ -15,7 +15,7 @@ namespace MagazinchikAPI.Model
 
         public long ReviewCount { get; set; }
 
-        public long AverageRating { get; set; }
+        public float AverageRating { get; set; }
 
         public List<OrderProduct>? OrderProducts { get; set; }
 
