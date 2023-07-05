@@ -1,4 +1,5 @@
 using MagazinchikAPI.DTO.User;
+using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
 namespace MagazinchikAPI.Endpoints
@@ -13,13 +14,13 @@ namespace MagazinchikAPI.Endpoints
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity);
 
             app.MapGet("/api/auth/logout", Logout).WithTags("Auth")
-            .Produces(401).Produces(200);
+            .Produces<APIErrorMessage>(401).Produces(200);
 
             app.MapGet("/api/auth/refresh", Refresh).WithTags("Auth")
-            .Produces(401).Produces<string>(200);
+            .Produces<APIErrorMessage>(401).Produces<string>(200);
 
             app.MapPost("/api/auth/login", Login).WithTags("Auth")
-            .Produces<UserDtoLogged>(200).Produces(401)
+            .Produces<UserDtoLogged>(200).Produces<APIErrorMessage>(401)
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity);
         }
 

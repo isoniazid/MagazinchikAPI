@@ -1,4 +1,5 @@
 using MagazinchikAPI.DTO.Review;
+using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
 namespace MagazinchikAPI.Endpoints
@@ -14,25 +15,25 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("api/product/leave_review", LeaveReview)
             .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK).WithTags("User")
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
-            .Produces(401).Produces(400);
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
 
             app.MapPut("api/product/update_review", UpdateReview).WithTags("User")
             .Produces(200);
 
             app.MapPost("api/product/add_to_favourite", AddToFavourite).WithTags("User")
-            .Produces(404).Produces(401).Produces(400).Produces(200);
+            .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400).Produces(200);
 
             app.MapDelete("api/product/remove_from_favourite", RemoveFromFavourite).WithTags("User")
-            .Produces(200).Produces(404).Produces(401);
+            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
 
             app.MapPost("api/product/add_to_cart", AddToCart).WithTags("User")
-            .Produces(200).Produces(404).Produces(401);
+            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
 
             app.MapDelete("api/product/remove_from_cart", RemoveFromCart).WithTags("User")
-            .Produces(200).Produces(404).Produces(401);
+            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
 
             app.MapPut("api/product/decrease_from_cart", DecreaseFromCart).WithTags("User")
-            .Produces(200).Produces(404).Produces(401);
+            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
             
             
         }
