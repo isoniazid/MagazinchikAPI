@@ -39,11 +39,11 @@ namespace MagazinchikAPI.Services
             var productToReview = await _context.Products.FindAsync(input.ProductId)
             ?? throw new APIException("Product does not exist", 404);
             productToReview.ReviewCount++;
-            productToReview.AverageRating+=input.Rate/productToReview.ReviewCount;
+            productToReview.AverageRating += input.Rate / productToReview.ReviewCount;
 
             //Check if review was already created
-            if(_context.Reviews.FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId) != null)
-            throw new APIException("Review for this product was already left", StatusCodes.Status400BadRequest);
+            if (_context.Reviews.FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId) != null)
+                throw new APIException("Review for this product was already left", StatusCodes.Status400BadRequest);
 
             var reviewToSave = _mapper.Map<Review>(input);
             reviewToSave.UserId = jwtId;
@@ -52,6 +52,30 @@ namespace MagazinchikAPI.Services
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReviewDtoCreateResult>(reviewToSave);
+
+        }
+
+
+        public async Task<ReviewDtoCreateResult> UpdateReview(ReviewDtoCreate input, HttpContext context)
+        {
+            var validation = _reviewCreateValidator.Validate(input);
+            if (!validation.IsValid) throw new ValidatorException(validation);
+
+            var jwtId = await UserIsOk(context);
+
+            //Check if review was already created
+            var reviewToUpdate = _context.Reviews.Include(x => x.Product).FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId)
+            ?? throw new APIException("Can't find review to update", StatusCodes.Status404NotFound);
+
+            reviewToUpdate.UpdateTime();
+            reviewToUpdate.Rate = input.Rate;
+            reviewToUpdate.Text = input.Text;
+
+            await _context.SaveChangesAsync();
+
+            await RecomputeProduct(input.ProductId);
+
+            return _mapper.Map<ReviewDtoCreateResult>(reviewToUpdate);
 
         }
 
@@ -139,6 +163,23 @@ namespace MagazinchikAPI.Services
             ?? throw new APIException("Nothing to remove", 404);
 
             _context.Favourites.Remove(favouriteToRemove);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task RecomputeProduct(long? productId)
+        {
+            var product = await _context.Products.FindAsync(productId)
+            ?? throw new APIException("No Such product", 404);
+            var rates = _context.Reviews.Where(x => x.ProductId == productId).Select(x => x.Rate);
+
+            float totalRate = 0f;
+
+            foreach (var rate in rates)
+            {
+                totalRate += rate;
+            }
+            product.AverageRating = totalRate / product.ReviewCount;
+
             await _context.SaveChangesAsync();
         }
 

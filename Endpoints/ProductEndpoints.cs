@@ -18,7 +18,9 @@ namespace MagazinchikAPI.Endpoints
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
 
             app.MapPut("api/product/update_review", UpdateReview).WithTags("User")
-            .Produces(200);
+            .Produces<ReviewDtoCreateResult>(200)
+            .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404);
 
             app.MapPost("api/product/add_to_favourite", AddToFavourite).WithTags("User")
             .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400).Produces(200);
@@ -49,7 +51,7 @@ namespace MagazinchikAPI.Endpoints
         [Authorize]
         public async Task<IResult> UpdateReview(IProductService service, [FromBody] DTO.ReviewDtoCreate dto, HttpContext context)
         {
-            throw new NotImplementedException();
+            return Results.Ok(await service.UpdateReview(dto, context));
         }
 
         public async Task<IResult> GetAll(IProductService service)
