@@ -2,7 +2,7 @@ using MagazinchikAPI.Model;
 
 namespace MagazinchikAPI.DTO
 {
-    public class ProductDtoBaseInfo : Traceable, IMapFrom<Model.Product>
+    public class ProductDtoBaseInfo : Traceable, IMapFrom<Product>
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -18,5 +18,7 @@ namespace MagazinchikAPI.DTO
         public float AverageRating { get; set; }
 
         public long Purchases { get; set; }
+
+        public CathegoryDtoBaseInfo? Cathegory {get; set;}
     }
 }

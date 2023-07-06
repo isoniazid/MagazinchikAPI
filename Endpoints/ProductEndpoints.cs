@@ -12,8 +12,8 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapPost("api/product/create", Create).WithTags("Admin");
 
-            app.MapPost("api/product/leave_review", LeaveReview)
-            .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK).WithTags("User")
+            app.MapPost("api/product/leave_review", LeaveReview).WithTags("User")
+            .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK)
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
 
@@ -36,8 +36,19 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapPut("api/product/decrease_from_cart", DecreaseFromCart).WithTags("User")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
-            
-            
+
+
+        }
+        
+        public async Task<IResult> GetAll(IProductService service)
+        {
+            return Results.Ok(await service.GetAll());
+        }
+
+        public async Task<IResult> Create(IProductService service, [FromBody] DTO.ProductDtoCreate dto)
+        {
+            await service.Create(dto);
+            return Results.Ok();
         }
 
 
@@ -52,17 +63,6 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> UpdateReview(IProductService service, [FromBody] DTO.ReviewDtoCreate dto, HttpContext context)
         {
             return Results.Ok(await service.UpdateReview(dto, context));
-        }
-
-        public async Task<IResult> GetAll(IProductService service)
-        {
-            return Results.Ok(await service.GetAll());
-        }
-
-        public async Task<IResult> Create(IProductService service, [FromBody] DTO.ProductDtoCreate dto)
-        {
-            await service.Create(dto);
-            return Results.Ok();
         }
 
         [Authorize]

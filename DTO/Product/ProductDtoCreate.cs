@@ -9,5 +9,7 @@ namespace MagazinchikAPI.DTO
         public decimal Price { get; set; }
 
         public string? Description { get; set; }
+
+        public long CathegoryId {get; set;}
     }
 }

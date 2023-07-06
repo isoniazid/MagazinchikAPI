@@ -5,8 +5,8 @@ namespace MagazinchikAPI.Model
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public long? ParentId {get; set;}
+        public long? ParentId { get; set; }
 
-        public Cathegory? Parent {get; set;}
+        public Cathegory? Parent { get; set; }
     }
 }

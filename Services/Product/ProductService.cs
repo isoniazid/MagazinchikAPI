@@ -25,7 +25,15 @@ namespace MagazinchikAPI.Services
 
         public async Task<List<ProductDtoBaseInfo>> GetAll()
         {
-            return await _context.Products.ProjectTo<ProductDtoBaseInfo>(_mapper.ConfigurationProvider).ToListAsync();
+            var result = new List<ProductDtoBaseInfo>();
+            var rawResult = await _context.Products.Include(x => x.Cathegory).ToListAsync();
+            foreach(var element in rawResult) 
+            {
+                 FindAllParents(element.Cathegory);
+                result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
+            }
+            return result;
+
         }
 
         public async Task<ReviewDtoCreateResult> LeaveReview(ReviewDtoCreate input, HttpContext context)
@@ -73,7 +81,7 @@ namespace MagazinchikAPI.Services
 
             await _context.SaveChangesAsync();
 
-            await RecomputeProduct(input.ProductId);
+            await RecomputeProductRate(input.ProductId);
 
             return _mapper.Map<ReviewDtoCreateResult>(reviewToUpdate);
 
@@ -166,7 +174,7 @@ namespace MagazinchikAPI.Services
             await _context.SaveChangesAsync();
         }
 
-        private async Task RecomputeProduct(long? productId)
+        private async Task RecomputeProductRate(long? productId)
         {
             var product = await _context.Products.FindAsync(productId)
             ?? throw new APIException("No Such product", 404);
@@ -190,6 +198,13 @@ namespace MagazinchikAPI.Services
             _ = await _context.Users.FindAsync(jwtId) ?? throw new APIException("Undefined user", 401);
 
             return jwtId;
+        }
+
+        private void FindAllParents(Cathegory? cathegory)
+        {
+            if(cathegory == null) return;
+            cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
+            if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
         }
     }
 }

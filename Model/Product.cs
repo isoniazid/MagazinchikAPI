@@ -5,7 +5,7 @@ namespace MagazinchikAPI.Model
         public long Id { get; set; }
 
         private string _name = string.Empty;
-        public string Name { get => _name; set => (_name, Slug) = (value, value.GenerateSlug());}
+        public string Name { get => _name; set => (_name, Slug) = (value, value.GenerateSlug()); }
 
         public string Slug { get; set; } = string.Empty;
 
@@ -29,7 +29,7 @@ namespace MagazinchikAPI.Model
 
         public long Purchases { get; set; }
 
-        public Cathegory Cathegory { get; set; } = new();
-        public long CathegoryId { get; set; }
+        public Cathegory? Cathegory { get; set; }
+        public long? CathegoryId { get; set; }
     }
 }

@@ -24,9 +24,8 @@ public static class Starter
     public static void RegisterServices(WebApplicationBuilder builder)
     {
 
-        builder.Services.AddValidatorsFromAssemblyContaining<UserDtoRegistrationValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<UserDtoLoginValidator>();
-
+        AddValidators(builder);
+        
         builder.Services.AddAutoMapper(typeof(ApplicationProfile));
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(ConfigureAuth);
@@ -36,15 +35,36 @@ public static class Starter
             options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
         });
 
-        builder.Services.AddScoped<IProductService, ProductService>();
-        builder.Services.AddScoped<ITokenService, TokenService>();
 
+        AddMicroServices(builder);
+        
         builder.Services.AddAuthorization();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => options.TokenValidationParameters = ConfigureJwtBearer(builder));
 
 
         builder.Services.AddCors();
+    }
+
+    public static void AddValidators(WebApplicationBuilder builder)
+    {
+        builder.Services.AddValidatorsFromAssemblyContaining<UserDtoRegistrationValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<UserDtoLoginValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<CathegoryDtoCreateValidator>();
+    }
+
+    public static void AddMicroServices(WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<ICathegoryService, CathegoryService>();
+        builder.Services.AddScoped<IProductService, ProductService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+    }
+
+        public static void RegisterEndpoints(WebApplication app)
+    {
+        new CathegoryEndpoints().Define(app);
+        new ProductEndpoints().Define(app);
+        new AuthEndpoints().Define(app);
     }
 
 
@@ -88,12 +108,6 @@ public static class Starter
         //Выгружаю из файла в константы
         jwt_issuer_ = app.Configuration["Jwt:Issuer"] ?? throw new Exception("Issuer undefined");
         jwt_key_ = app.Configuration["Jwt:Key"] ?? throw new Exception("Key undefined");
-    }
-
-    public static void RegisterEndpoints(WebApplication app)
-    {
-        new ProductEndpoints().Define(app);
-        new AuthEndpoints().Define(app);
     }
 
     public static void ConfigureAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions setup)
