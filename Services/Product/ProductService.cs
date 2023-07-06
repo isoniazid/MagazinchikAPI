@@ -27,9 +27,9 @@ namespace MagazinchikAPI.Services
         {
             var result = new List<ProductDtoBaseInfo>();
             var rawResult = await _context.Products.Include(x => x.Cathegory).ToListAsync();
-            foreach(var element in rawResult) 
+            foreach (var element in rawResult)
             {
-                 FindAllParents(element.Cathegory);
+                FindAllParents(element.Cathegory);
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
             return result;
@@ -47,7 +47,6 @@ namespace MagazinchikAPI.Services
             var productToReview = await _context.Products.FindAsync(input.ProductId)
             ?? throw new APIException("Product does not exist", 404);
             productToReview.ReviewCount++;
-            productToReview.AverageRating += input.Rate / productToReview.ReviewCount;
 
             //Check if review was already created
             if (_context.Reviews.FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId) != null)
@@ -57,7 +56,10 @@ namespace MagazinchikAPI.Services
             reviewToSave.UserId = jwtId;
 
             await _context.Reviews.AddAsync(reviewToSave);
-            await _context.SaveChangesAsync();
+            await RecomputeProductRate(input.ProductId);
+            
+            //Savechanges is called in RecomputeProductRate
+            //await _context.SaveChangesAsync();
 
             return _mapper.Map<ReviewDtoCreateResult>(reviewToSave);
 
@@ -202,7 +204,7 @@ namespace MagazinchikAPI.Services
 
         private void FindAllParents(Cathegory? cathegory)
         {
-            if(cathegory == null) return;
+            if (cathegory == null) return;
             cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
             if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
         }
