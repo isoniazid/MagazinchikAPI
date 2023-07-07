@@ -1,6 +1,6 @@
 namespace MagazinchikAPI.Model
 {
-    public class CartProduct : Traceable
+    public class CartProduct 
     {
         public long Id { get; set; }
         public long ProductCount { get; set; }

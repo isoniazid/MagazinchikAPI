@@ -2,7 +2,7 @@ using MagazinchikAPI.Model;
 
 namespace MagazinchikAPI.DTO
 {
-    public class ProductDtoBaseInfo : Traceable, IMapFrom<Product>
+    public class ProductDtoBaseInfo :  IMapFrom<Product>
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;

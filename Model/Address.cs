@@ -1,6 +1,6 @@
 namespace MagazinchikAPI.Model
 {
-    public class Address : Traceable
+    public class Address 
     {
         public long Id { get; set; }
 

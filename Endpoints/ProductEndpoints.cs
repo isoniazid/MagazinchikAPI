@@ -60,7 +60,7 @@ namespace MagazinchikAPI.Endpoints
 
 
         [Authorize]
-        public async Task<IResult> UpdateReview(IProductService service, [FromBody] DTO.ReviewDtoCreate dto, HttpContext context)
+        public async Task<IResult> UpdateReview(IProductService service, [FromBody] DTO.ReviewDtoUpdate dto, HttpContext context)
         {
             return Results.Ok(await service.UpdateReview(dto, context));
         }

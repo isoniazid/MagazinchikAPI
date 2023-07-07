@@ -13,7 +13,7 @@ namespace MagazinchikAPI.Services
         private readonly IValidator<UserDtoRegistration> _registrationValidator;
         private readonly IValidator<UserDtoLogin> _loginValidator;
 
-        public TokenService(IMapper mapper, ApplicationDbContext context, 
+        public TokenService(IMapper mapper, ApplicationDbContext context,
         IValidator<UserDtoRegistration> registrationValidator, IValidator<UserDtoLogin> loginValidator)
         {
             _mapper = mapper;
@@ -49,7 +49,7 @@ namespace MagazinchikAPI.Services
             var rTokenVal = rtokenStr.Concat(rTokenSeed).ToArray();
 
             var encrypter = new System.Security.Cryptography.HMACSHA256
-            {Key = Starter.RefreshHashKey};
+            { Key = Starter.REFRESH_HASH_KEY };
 
             return new RefreshToken
             {
@@ -86,7 +86,7 @@ namespace MagazinchikAPI.Services
         public async Task<UserDtoLogged> Login(HttpContext httpContext, UserDtoLogin loggingUser)
         {
             var validation = _loginValidator.Validate(loggingUser);
-            if(!validation.IsValid) throw new ValidatorException(validation);
+            if (!validation.IsValid) throw new ValidatorException(validation);
 
             var existingUser = await _context.Users
             .FirstOrDefaultAsync(x => x.Password == loggingUser.Password && x.Email == loggingUser.Email)
@@ -110,13 +110,17 @@ namespace MagazinchikAPI.Services
         public async Task<UserDtoRegistered> Register(UserDtoRegistration regDto, HttpContext httpContext)
         {
             var validation = _registrationValidator.Validate(regDto);
-            if(!validation.IsValid) throw new ValidatorException(validation);
+            if (!validation.IsValid) throw new ValidatorException(validation);
 
 
 
             var userToSave = _mapper.Map<User>(regDto);
+            (userToSave.UpdatedAt, userToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
+
             await _context.Users.AddAsync(userToSave);
             await _context.SaveChangesAsync();
+
+
             var userDto = new UserDtoToken
             { Email = userToSave.Email, Id = userToSave.Id, Role = userToSave.Role };
 
@@ -124,6 +128,7 @@ namespace MagazinchikAPI.Services
             var refreshToken = BuildRefreshToken(userToSave);
             await _context.RefreshTokens.AddAsync(refreshToken);
             await _context.SaveChangesAsync();
+
             SaveToCookies(httpContext, refreshToken);
 
             var result = _mapper.Map<UserDtoRegistered>(regDto);

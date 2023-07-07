@@ -1,6 +1,6 @@
 namespace MagazinchikAPI.Model
 {
-    public class Review : Traceable
+    public class Review
     {
         public long Id { get; set; }
         public long? UserId { get; set; }
@@ -12,5 +12,8 @@ namespace MagazinchikAPI.Model
         public string? Text { get; set; }
 
         public float Rate { get; set; }
+
+        public DateTime? CreatedAt {get; set;}
+        public DateTime? UpdatedAt {get; set;}
     }
 }

@@ -1,6 +1,6 @@
 namespace MagazinchikAPI.Model
 {
-    public class Order : Traceable
+    public class Order
     {
         public long Id { get; set; }
         public decimal Price { get; set; }
@@ -12,5 +12,8 @@ namespace MagazinchikAPI.Model
 
         public Address Address = new();
         public long AddressId { get; set; }
+
+        public DateTime? CreatedAt {get; set;}
+        public DateTime? UpdatedAt {get; set;}
     }
 }

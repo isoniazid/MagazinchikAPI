@@ -8,24 +8,22 @@ using FluentValidation;
 public static class Starter
 {
 
-    public static readonly byte[] passwordHashKey = Encoding.UTF8.GetBytes("Здарова Вовчик, а ты че исходники смотришь мои?");
+    public static byte[] PASSWORD_HASH_KEY { get; private set; } = new byte[1];
+    public static byte[] REFRESH_HASH_KEY { get; private set; } = new byte[1];
+    public static string JWT_ISSUER { get; private set; } = string.Empty;
+    public static string JWT_KEY { get; private set; } = string.Empty;
 
-    public static readonly byte[] RefreshHashKey = Encoding.UTF8.GetBytes("Это ключ для хеширования рефреш токенов. Кста Вовыч здарова как жизнь?");
     public static readonly TimeSpan AccessTokenTime = new(0, 30, 0);
-    public static readonly TimeSpan RefreshTokenTime = new(30,0,0,0);
+    public static readonly TimeSpan RefreshTokenTime = new(30, 0, 0, 0);
 
     public static readonly TimeSpan RefreshTokenThreshold = new(5, 0, 0, 0);
-    
-    private static string jwt_issuer_ = string.Empty;
-    public static string JWT_ISSUER {get => jwt_issuer_;} 
-    private static string jwt_key_ = string.Empty;
-    public static string JWT_KEY {get => jwt_key_;}
+
 
     public static void RegisterServices(WebApplicationBuilder builder)
     {
 
         AddValidators(builder);
-        
+
         builder.Services.AddAutoMapper(typeof(ApplicationProfile));
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(ConfigureAuth);
@@ -37,7 +35,7 @@ public static class Starter
 
 
         AddMicroServices(builder);
-        
+
         builder.Services.AddAuthorization();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => options.TokenValidationParameters = ConfigureJwtBearer(builder));
@@ -51,6 +49,12 @@ public static class Starter
         builder.Services.AddValidatorsFromAssemblyContaining<UserDtoRegistrationValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<UserDtoLoginValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<CathegoryDtoCreateValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<ReviewDtoCreateValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<ReviewDtoUpdateValidator>();
+
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine("Validators added");
+        Console.ResetColor();
     }
 
     public static void AddMicroServices(WebApplicationBuilder builder)
@@ -58,29 +62,38 @@ public static class Starter
         builder.Services.AddScoped<ICathegoryService, CathegoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
+
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine("MicroServices added");
+        Console.ResetColor();
     }
 
-        public static void RegisterEndpoints(WebApplication app)
+    public static void RegisterEndpoints(WebApplication app)
     {
         new CathegoryEndpoints().Define(app);
         new ProductEndpoints().Define(app);
         new AuthEndpoints().Define(app);
+
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine("Endpoints registered");
+        Console.ResetColor();
     }
 
-
-    public static TokenValidationParameters ConfigureJwtBearer(WebApplicationBuilder builder)
+    public static void LoadConfigs(WebApplication app)
     {
-        return new()
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Отсутствует ключ!")))
-        };
+        //Выгружаю из файла в константы
+        JWT_ISSUER = app.Configuration["Jwt:Issuer"] ?? throw new Exception("Issuer undefined");
+        JWT_KEY = app.Configuration["Jwt:Key"] ?? throw new Exception("Key undefined");
+        PASSWORD_HASH_KEY = Encoding.UTF8.GetBytes(app.Configuration["Password:Key"] ?? throw new Exception("No password hash key"));
+        REFRESH_HASH_KEY = Encoding.UTF8.GetBytes(app.Configuration["RefreshToken:Key"] ?? throw new Exception("No RToken hash key"));
+
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine("Configs from file loaded");
+        Console.ResetColor();
     }
+
+
+
 
     public static void Configure(WebApplication app)
     {
@@ -94,6 +107,7 @@ public static class Starter
             app.UseSwaggerUI();
             using var scope = app.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
             //db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
         }
@@ -105,9 +119,7 @@ public static class Starter
             builder.AllowAnyHeader();
         });
 
-        //Выгружаю из файла в константы
-        jwt_issuer_ = app.Configuration["Jwt:Issuer"] ?? throw new Exception("Issuer undefined");
-        jwt_key_ = app.Configuration["Jwt:Key"] ?? throw new Exception("Key undefined");
+        LoadConfigs(app);
     }
 
     public static void ConfigureAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions setup)
@@ -136,6 +148,20 @@ public static class Starter
         { jwtSecurityScheme, Array.Empty<string>() }
     });
 
+    }
+
+    public static TokenValidationParameters ConfigureJwtBearer(WebApplicationBuilder builder)
+    {
+        return new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Отсутствует ключ!")))
+        };
     }
 
 }

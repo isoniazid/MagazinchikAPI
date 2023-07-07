@@ -1,6 +1,6 @@
 namespace MagazinchikAPI.Model
 {
-    public class Favourite : Traceable
+    public class Favourite
     {
         public long Id { get; set; }
         public User? User { get; set; }
@@ -8,7 +8,6 @@ namespace MagazinchikAPI.Model
         public long? ProductId { get; set; }
 
         public Product? Product { get; set; }
-
 
     }
 }

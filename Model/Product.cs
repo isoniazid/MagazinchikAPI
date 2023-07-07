@@ -1,6 +1,6 @@
 namespace MagazinchikAPI.Model
 {
-    public class Product : Traceable
+    public class Product
     {
         public long Id { get; set; }
 
@@ -31,5 +31,8 @@ namespace MagazinchikAPI.Model
 
         public Cathegory? Cathegory { get; set; }
         public long? CathegoryId { get; set; }
+
+        public DateTime? CreatedAt {get; set;}
+        public DateTime? UpdatedAt {get; set;}
     }
 }

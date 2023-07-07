@@ -11,14 +11,20 @@ namespace MagazinchikAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IValidator<ReviewDtoCreate> _reviewCreateValidator;
-        public ProductService(ApplicationDbContext context, IMapper mapper, IValidator<ReviewDtoCreate> reviewCreateValidator)
+        private readonly IValidator<ReviewDtoUpdate> _reviewUpdateValidator;
+        public ProductService(ApplicationDbContext context, IMapper mapper, IValidator<ReviewDtoCreate> reviewCreateValidator,
+        IValidator<ReviewDtoUpdate> reviewUpdateValidator)
         {
             _reviewCreateValidator = reviewCreateValidator;
+            _reviewUpdateValidator = reviewUpdateValidator;
             _context = context;
             _mapper = mapper;
         }
         public async Task Create(ProductDtoCreate input)
         {
+            var productToSave = _mapper.Map<Product>(input);
+            (productToSave.UpdatedAt, productToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
+
             await _context.Products.AddAsync(_mapper.Map<Product>(input));
             await _context.SaveChangesAsync();
         }
@@ -54,6 +60,7 @@ namespace MagazinchikAPI.Services
 
             var reviewToSave = _mapper.Map<Review>(input);
             reviewToSave.UserId = jwtId;
+            (reviewToSave.UpdatedAt, reviewToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
 
             await _context.Reviews.AddAsync(reviewToSave);
             await RecomputeProductRate(input.ProductId);
@@ -66,9 +73,9 @@ namespace MagazinchikAPI.Services
         }
 
 
-        public async Task<ReviewDtoCreateResult> UpdateReview(ReviewDtoCreate input, HttpContext context)
+        public async Task<ReviewDtoCreateResult> UpdateReview(ReviewDtoUpdate input, HttpContext context)
         {
-            var validation = _reviewCreateValidator.Validate(input);
+            var validation = _reviewUpdateValidator.Validate(input);
             if (!validation.IsValid) throw new ValidatorException(validation);
 
             var jwtId = await UserIsOk(context);
@@ -77,7 +84,8 @@ namespace MagazinchikAPI.Services
             var reviewToUpdate = _context.Reviews.Include(x => x.Product).FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId)
             ?? throw new APIException("Can't find review to update", StatusCodes.Status404NotFound);
 
-            reviewToUpdate.UpdateTime();
+            //reviewToUpdate.UpdateTime();
+            reviewToUpdate.UpdatedAt = DateTime.UtcNow;
             reviewToUpdate.Rate = input.Rate;
             reviewToUpdate.Text = input.Text;
 
@@ -189,6 +197,8 @@ namespace MagazinchikAPI.Services
                 totalRate += rate;
             }
             product.AverageRating = totalRate / product.ReviewCount;
+            
+            product.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
         }

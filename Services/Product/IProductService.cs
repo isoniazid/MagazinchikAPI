@@ -1,4 +1,5 @@
 using MagazinchikAPI.DTO;
+using MagazinchikAPI.DTO.Review;
 
 namespace MagazinchikAPI.Services
 {
@@ -10,7 +11,7 @@ namespace MagazinchikAPI.Services
 
         public Task<DTO.Review.ReviewDtoCreateResult> LeaveReview(ReviewDtoCreate dto, HttpContext context);
 
-        public Task<DTO.Review.ReviewDtoCreateResult> UpdateReview(ReviewDtoCreate input, HttpContext context);
+        public Task<DTO.Review.ReviewDtoCreateResult> UpdateReview(ReviewDtoUpdate input, HttpContext context);
 
         public Task AddToFavourite(long productId, HttpContext context);
 
