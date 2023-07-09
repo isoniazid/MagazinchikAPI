@@ -8,9 +8,20 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapGet("api/product/get_all", GetAll).Produces<List<DTO.ProductDtoBaseInfo>>();
+            app.MapGet("api/product/get_all", GetAll).WithTags("Dev")
+            .Produces<List<DTO.ProductDtoBaseInfo>>();
 
-            app.MapPost("api/product/create", Create).WithTags("Admin");
+            app.MapPost("api/product/create", Create).WithTags("Admin")
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
+
+            app.MapGet("api/product/random_from_cathegory", GetRandomByCathegory).WithTags("Common")
+            .Produces<List<DTO.ProductDtoBaseInfo>>();
+
+            app.MapGet("api/product/random_personal", GetRandomPersonal).WithTags("User")
+            .Produces<List<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
+
+            app.MapGet("api/product/popular", GetPopular).WithTags("Common")
+            .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
             app.MapPost("api/product/leave_review", LeaveReview).WithTags("User")
             .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK)
@@ -39,7 +50,7 @@ namespace MagazinchikAPI.Endpoints
 
 
         }
-        
+
         public async Task<IResult> GetAll(IProductService service)
         {
             return Results.Ok(await service.GetAll());
@@ -99,6 +110,24 @@ namespace MagazinchikAPI.Endpoints
             await service.DecreaseFromCart(productId, context);
             return Results.Ok();
         }
+        
+        [Authorize]
+        public async Task<IResult> GetRandomPersonal(IProductService service, [FromQuery] int limit, HttpContext context)
+        {
+            return Results.Ok(await service.GetRandomPersonal(context, limit));
+        }
+
+        public IResult GetRandomByCathegory(IProductService service, [FromQuery] long cathegoryId, [FromQuery] int limit, HttpContext context)
+        {
+            return Results.Ok(service.GetRandomByCathegory(cathegoryId, context, limit));
+        }
+
+        public IResult GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int offset)
+        {
+            return Results.Ok(service.GetPopular(limit, offset));
+        }
+
+
 
 
     }

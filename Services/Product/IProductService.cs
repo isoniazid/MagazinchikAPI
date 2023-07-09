@@ -9,9 +9,9 @@ namespace MagazinchikAPI.Services
 
         public Task<List<ProductDtoBaseInfo>> GetAll();
 
-        public Task<DTO.Review.ReviewDtoCreateResult> LeaveReview(ReviewDtoCreate dto, HttpContext context);
+        public Task<ReviewDtoCreateResult> LeaveReview(ReviewDtoCreate dto, HttpContext context);
 
-        public Task<DTO.Review.ReviewDtoCreateResult> UpdateReview(ReviewDtoUpdate input, HttpContext context);
+        public Task<ReviewDtoCreateResult> UpdateReview(ReviewDtoUpdate input, HttpContext context);
 
         public Task AddToFavourite(long productId, HttpContext context);
 
@@ -22,5 +22,11 @@ namespace MagazinchikAPI.Services
         public Task RemoveFromCart(long productId, HttpContext context);
 
         public Task DecreaseFromCart(long productId, HttpContext context);
+
+        public List<ProductDtoBaseInfo> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit);
+
+        public Task<List<ProductDtoBaseInfo>> GetRandomPersonal(HttpContext httpContext, int limit);
+
+        public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset);
     }
 }

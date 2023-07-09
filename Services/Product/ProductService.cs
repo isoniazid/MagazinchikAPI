@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using MagazinchikAPI.DTO;
 using MagazinchikAPI.DTO.Review;
@@ -8,6 +9,7 @@ namespace MagazinchikAPI.Services
 {
     public class ProductService : IProductService
     {
+        private const int LIMIT_SIZE = 50;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IValidator<ReviewDtoCreate> _reviewCreateValidator;
@@ -25,7 +27,11 @@ namespace MagazinchikAPI.Services
             var productToSave = _mapper.Map<Product>(input);
             (productToSave.UpdatedAt, productToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
 
-            await _context.Products.AddAsync(_mapper.Map<Product>(input));
+            var cathegory = _context.Cathegories.Find(productToSave.CathegoryId)
+            ?? throw new APIException("Invalid cathegory", 404);
+            if (cathegory.IsParent) throw new APIException("Invalid cathegory", 400);
+
+            await _context.Products.AddAsync(productToSave);
             await _context.SaveChangesAsync();
         }
 
@@ -39,7 +45,59 @@ namespace MagazinchikAPI.Services
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
             return result;
+        }
 
+        public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset)
+        {
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var pages = (int)Math.Ceiling((float)_context.Products.Count() / (float)limit);
+            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+
+            var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(
+                _context.Products
+                .OrderByDescending(x => x.Purchases)
+                .Skip(offset * limit)
+                .Take(limit));
+
+                return new Page<ProductDtoBaseInfo>() {CurrentOffset=offset, CurrentPage = pageData, Pages = pages};
+
+
+        }
+        public async Task<List<ProductDtoBaseInfo>> GetRandomPersonal(HttpContext httpContext, int limit)
+        {
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var jwtId = await UserIsOk(httpContext);
+
+            var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
+
+            var favouriteCathegoriesIds = _context.Favourites.Include(x => x.Product).Where(x => x.UserId == jwtId).Select(x => x.Product!.CathegoryId).ToList();
+
+            var result = _context.Products.Where(x => favouriteCathegoriesIds.Contains(x.CathegoryId))
+            .OrderBy(x => EF.Functions.Random()).ToList()
+            .ExceptBy(idsFromCookies, x => x.Id)
+            .Take(limit);
+
+            SaveExceptProductsToCookies(httpContext, result.Select(x => x.Id));
+
+            return _mapper.Map<List<ProductDtoBaseInfo>>(result);
+        }
+
+        public List<ProductDtoBaseInfo> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit)
+        {
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+
+            var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
+
+
+            var result = _context.Products.Where(x => x.CathegoryId == cathegoryId)
+            .OrderBy(x => EF.Functions.Random()).Take(limit).ToList().ExceptBy(idsFromCookies, x => x.Id);
+
+            SaveExceptProductsToCookies(httpContext, result.Select(x => x.Id));
+
+            return _mapper.Map<List<ProductDtoBaseInfo>>(result);
         }
 
         public async Task<ReviewDtoCreateResult> LeaveReview(ReviewDtoCreate input, HttpContext context)
@@ -63,15 +121,14 @@ namespace MagazinchikAPI.Services
             (reviewToSave.UpdatedAt, reviewToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
 
             await _context.Reviews.AddAsync(reviewToSave);
+
+            await _context.SaveChangesAsync();
+
             await RecomputeProductRate(input.ProductId);
-            
-            //Savechanges is called in RecomputeProductRate
-            //await _context.SaveChangesAsync();
 
             return _mapper.Map<ReviewDtoCreateResult>(reviewToSave);
 
         }
-
 
         public async Task<ReviewDtoCreateResult> UpdateReview(ReviewDtoUpdate input, HttpContext context)
         {
@@ -156,7 +213,6 @@ namespace MagazinchikAPI.Services
             await _context.SaveChangesAsync();
         }
 
-
         public async Task DecreaseFromCart(long productId, HttpContext context)
         {
             var jwtId = await UserIsOk(context);
@@ -171,7 +227,6 @@ namespace MagazinchikAPI.Services
 
             await _context.SaveChangesAsync();
         }
-
 
         public async Task RemoveFromFavourite(long productId, HttpContext context)
         {
@@ -197,7 +252,7 @@ namespace MagazinchikAPI.Services
                 totalRate += rate;
             }
             product.AverageRating = totalRate / product.ReviewCount;
-            
+
             product.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -218,5 +273,39 @@ namespace MagazinchikAPI.Services
             cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
             if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
         }
+
+        private static void SaveExceptProductsToCookies(HttpContext context, IEnumerable<long> ids)
+        {
+            //NB а что если куки наберется больше 4 кб?
+            var idsFromCookies = new List<long>();
+
+            if (context.Request.Cookies.ContainsKey("except_products"))
+            {
+                idsFromCookies = JsonSerializer.Deserialize<List<long>>(context.Request.Cookies["except_products"] ?? throw new Exception("can't deserialize cookie"))
+                ?? throw new Exception("can't deserialize cookie");
+            }
+
+            idsFromCookies.AddRange(ids);
+            idsFromCookies = idsFromCookies.Distinct().ToList();
+
+            context.Response.Cookies.Delete("except_products");
+            context.Response.Cookies.Append("except_products", JsonSerializer.Serialize(idsFromCookies),
+            new CookieOptions() { Secure = true, HttpOnly = true, MaxAge = new TimeSpan(365, 0, 0, 0) });
+        }
+
+        private static IEnumerable<long> LoadExceptProductsFromCookies(HttpContext context)
+        {
+            if (!context.Request.Cookies.ContainsKey("except_products"))
+            {
+                return Enumerable.Empty<long>();
+            }
+
+            var idsFromCookies = JsonSerializer.Deserialize<List<long>>(context.Request.Cookies["except_products"] ?? throw new Exception("can't deserialize cookie"))
+            ?? throw new Exception("can't deserialize cookie");
+
+            return idsFromCookies;
+        }
     }
+
+
 }
