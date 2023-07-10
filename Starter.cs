@@ -1,9 +1,9 @@
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Endpoints;
 using MagazinchikAPI.Services;
-using MagazinchikAPI.DTO;
 using MagazinchikAPI.Validators;
 using FluentValidation;
+using MagazinchikAPI.Services.Photo;
 
 public static class Starter
 {
@@ -62,6 +62,7 @@ public static class Starter
         builder.Services.AddScoped<ICathegoryService, CathegoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IPhotoService, PhotoService>();
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("MicroServices added");
@@ -73,6 +74,7 @@ public static class Starter
         new CathegoryEndpoints().Define(app);
         new ProductEndpoints().Define(app);
         new AuthEndpoints().Define(app);
+        new PhotoEndpoints().Define(app);
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("Endpoints registered");

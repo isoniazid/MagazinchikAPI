@@ -38,13 +38,24 @@ namespace MagazinchikAPI.Services
         public async Task<List<ProductDtoBaseInfo>> GetAll()
         {
             var result = new List<ProductDtoBaseInfo>();
-            var rawResult = await _context.Products.Include(x => x.Cathegory).ToListAsync();
+            var rawResult = await _context.Products.Include(x => x.Cathegory).Include(x => x.Photos).ToListAsync();
             foreach (var element in rawResult)
             {
                 FindAllParents(element.Cathegory);
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
             return result;
+        }
+
+        public async Task<ProductDtoBaseInfo> GetBaseInfo(long productId)
+        {
+            var result = await _context.Products
+            .Include(x => x.Cathegory)
+            .Include(x => x.Photos).FirstOrDefaultAsync(x => x.Id == productId)
+            ?? throw new APIException("No such product", 404);
+            FindAllParents(result.Cathegory);
+
+            return _mapper.Map<ProductDtoBaseInfo>(result);
         }
 
         public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset)
@@ -60,7 +71,7 @@ namespace MagazinchikAPI.Services
                 .Skip(offset * limit)
                 .Take(limit));
 
-                return new Page<ProductDtoBaseInfo>() {CurrentOffset=offset, CurrentPage = pageData, Pages = pages};
+            return new Page<ProductDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = pageData, Pages = pages };
 
 
         }
@@ -152,6 +163,49 @@ namespace MagazinchikAPI.Services
 
             return _mapper.Map<ReviewDtoCreateResult>(reviewToUpdate);
 
+        }
+
+        public Page<ReviewDtoBaseInfo> GetReviewsForProduct(long productId, int limit, int offset)
+        {
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var pages = (int)Math.Ceiling((float)_context.Reviews.Where(x => x.ProductId == productId).Count() / (float)limit);
+            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+
+            var pageData = _mapper.Map<List<ReviewDtoBaseInfo>>(
+                _context.Reviews.Include(x => x.User)
+                .Where(x => x.ProductId == productId)
+                .OrderByDescending(x => x.UpdatedAt)
+                .Skip(offset * limit)
+                .Take(limit));
+
+            return new Page<ReviewDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = pageData, Pages = pages };
+        }
+
+        public ReviewDtoRateList GetProductRateList(long productId)
+        {
+            var product = _context.Products.Find(productId)
+            ?? throw new APIException("No such product", 404);
+
+            var reviews = _context.Reviews.Where(x => x.ProductId == productId);
+
+
+            var averageRating = product.AverageRating;
+
+
+            var result = new ReviewDtoRateList
+            {
+                Average = averageRating,
+                Listing = new List<int>(){
+            reviews.Where(x => x.Rate == 1.0f).Count(),
+            reviews.Where(x => x.Rate == 2.0f).Count(),
+            reviews.Where(x => x.Rate == 3.0f).Count(),
+            reviews.Where(x => x.Rate == 4.0f).Count(),
+            reviews.Where(x => x.Rate == 5.0f).Count(),
+            }
+            };
+
+            return result;
         }
 
         public async Task AddToFavourite(long productId, HttpContext context)

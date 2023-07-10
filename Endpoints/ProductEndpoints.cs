@@ -14,6 +14,9 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("api/product/create", Create).WithTags("Admin")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
 
+            app.MapGet("api/product/detail", GetBaseInfo).WithTags("Common")
+            .Produces<DTO.ProductDtoBaseInfo>().Produces<APIErrorMessage>(404);
+
             app.MapGet("api/product/random_from_cathegory", GetRandomByCathegory).WithTags("Common")
             .Produces<List<DTO.ProductDtoBaseInfo>>();
 
@@ -22,6 +25,12 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapGet("api/product/popular", GetPopular).WithTags("Common")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
+
+            app.MapGet("api/product/review/all_for_product", GetReviewsForProduct).WithTags("Common")
+            .Produces<DTO.Page<ReviewDtoBaseInfo>>().Produces<APIErrorMessage>(400);
+
+            app.MapGet("api/product/review/ratelist", GetProductRateList).WithTags("Common")
+            .Produces<ReviewDtoRateList>().Produces<APIErrorMessage>(404);
 
             app.MapPost("api/product/leave_review", LeaveReview).WithTags("User")
             .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK)
@@ -54,6 +63,11 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> GetAll(IProductService service)
         {
             return Results.Ok(await service.GetAll());
+        }
+
+        public async Task<IResult> GetBaseInfo(IProductService service, [FromQuery] long productId)
+        {
+            return Results.Ok(await service.GetBaseInfo(productId));
         }
 
         public async Task<IResult> Create(IProductService service, [FromBody] DTO.ProductDtoCreate dto)
@@ -110,7 +124,7 @@ namespace MagazinchikAPI.Endpoints
             await service.DecreaseFromCart(productId, context);
             return Results.Ok();
         }
-        
+
         [Authorize]
         public async Task<IResult> GetRandomPersonal(IProductService service, [FromQuery] int limit, HttpContext context)
         {
@@ -125,6 +139,16 @@ namespace MagazinchikAPI.Endpoints
         public IResult GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int offset)
         {
             return Results.Ok(service.GetPopular(limit, offset));
+        }
+
+        public IResult GetReviewsForProduct(IProductService service, [FromQuery] long productId, [FromQuery] int limit, [FromQuery] int offset)
+        {
+            return Results.Ok(service.GetReviewsForProduct(productId, limit, offset));
+        }
+
+        public IResult GetProductRateList(IProductService service, [FromQuery] long productId)
+        {
+            return Results.Ok(service.GetProductRateList(productId));
         }
 
 
