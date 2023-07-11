@@ -4,6 +4,8 @@ namespace MagazinchikAPI.Infrastructure
 {
     public class ApplicationDbContext : DbContext
     {
+        public ApplicationDbContext()
+        {}
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         { }
 
@@ -15,9 +17,9 @@ namespace MagazinchikAPI.Infrastructure
         public DbSet<Cathegory> Cathegories => Set<Cathegory>();
         public DbSet<Favourite> Favourites => Set<Favourite>();
         public DbSet<Photo> Photos => Set<Photo>();
-        public DbSet<Product> Products => Set<Product>();
+        public virtual DbSet<Product> Products => Set<Product>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<Review> Reviews => Set<Review>();
-        public DbSet<User> Users => Set<User>();
+        public virtual DbSet<User> Users => Set<User>();
     }
 }
