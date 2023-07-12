@@ -4,6 +4,6 @@ namespace MagazinchikAPI.DTO.Review
     {
         public float Average {get; set;}
 
-        public List<int> Listing {get; set;} = new List<int>();
+        public List<KeyValuePair<float, int>> Listing {get; set;} = new();
     }
 }

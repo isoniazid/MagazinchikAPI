@@ -196,12 +196,12 @@ namespace MagazinchikAPI.Services
             var result = new ReviewDtoRateList
             {
                 Average = averageRating,
-                Listing = new List<int>(){
-            reviews.Where(x => x.Rate == 1.0f).Count(),
-            reviews.Where(x => x.Rate == 2.0f).Count(),
-            reviews.Where(x => x.Rate == 3.0f).Count(),
-            reviews.Where(x => x.Rate == 4.0f).Count(),
-            reviews.Where(x => x.Rate == 5.0f).Count(),
+                Listing = new List<KeyValuePair<float, int>> {
+            new (1.0f, reviews.Where(x => x.Rate == 1.0f).Count() ),
+            new    ( 2.0f, reviews.Where(x => x.Rate == 2.0f).Count() ),
+            new    ( 3.0f, reviews.Where(x => x.Rate == 3.0f).Count() ),
+            new    ( 4.0f, reviews.Where(x => x.Rate == 4.0f).Count() ),
+            new    ( 5.0f, reviews.Where(x => x.Rate == 5.0f).Count() )
             }
             };
 
