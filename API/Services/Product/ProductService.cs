@@ -45,13 +45,20 @@ namespace MagazinchikAPI.Services
         }
         public async Task<ProductDtoBaseInfo> GetBaseInfo(long productId)
         {
-            var result = await _context.Products
+            var productFromDb = await _context.Products
             .Include(x => x.Cathegory)
-            .Include(x => x.Photos).FirstOrDefaultAsync(x => x.Id == productId)
+            .Include(x => x.Photos)
+            .Include(x => x.Reviews)
+            .FirstOrDefaultAsync(x => x.Id == productId)
             ?? throw new APIException("No such product", 404);
-            FindAllParents(result.Cathegory);
+            FindAllParents(productFromDb.Cathegory);
 
-            return _mapper.Map<ProductDtoBaseInfo>(result);
+            var result = _mapper.Map<ProductDtoBaseInfo>(productFromDb);
+            result.ReviewNoTextCount = productFromDb.Reviews == null ?
+            0 : productFromDb.Reviews.Where(x => x.Text == null).Count();
+
+            return result;
+
         }
         public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset)
         {

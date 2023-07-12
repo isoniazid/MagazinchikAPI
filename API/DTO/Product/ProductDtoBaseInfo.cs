@@ -15,6 +15,8 @@ namespace MagazinchikAPI.DTO
 
         public long ReviewCount { get; set; }
 
+        public long ReviewNoTextCount {get; set;}
+
         public float AverageRating { get; set; }
 
         public long Purchases { get; set; }
