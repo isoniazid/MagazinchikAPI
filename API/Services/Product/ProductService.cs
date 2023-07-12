@@ -12,9 +12,11 @@ namespace MagazinchikAPI.Services
         private const int LIMIT_SIZE = 50;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly CommonService _commonService;
 
-        public ProductService(ApplicationDbContext context, IMapper mapper)
+        public ProductService(ApplicationDbContext context, IMapper mapper, CommonService commonService)
         {
+            _commonService = commonService;
             _context = context;
             _mapper = mapper;
         }
@@ -30,7 +32,6 @@ namespace MagazinchikAPI.Services
             await _context.Products.AddAsync(productToSave);
             await _context.SaveChangesAsync();
         }
-
         public async Task<List<ProductDtoBaseInfo>> GetAll()
         {
             var result = new List<ProductDtoBaseInfo>();
@@ -42,7 +43,6 @@ namespace MagazinchikAPI.Services
             }
             return result;
         }
-
         public async Task<ProductDtoBaseInfo> GetBaseInfo(long productId)
         {
             var result = await _context.Products
@@ -53,7 +53,6 @@ namespace MagazinchikAPI.Services
 
             return _mapper.Map<ProductDtoBaseInfo>(result);
         }
-
         public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset)
         {
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
@@ -75,7 +74,7 @@ namespace MagazinchikAPI.Services
         {
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
-            var jwtId = await UserIsOk(httpContext);
+            var jwtId = await _commonService.UserIsOk(httpContext);
 
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
 
@@ -109,7 +108,7 @@ namespace MagazinchikAPI.Services
         public async Task AddToFavourite(long productId, HttpContext context)
         {
 
-            var jwtId = await UserIsOk(context);
+            var jwtId = await _commonService.UserIsOk(context);
 
 
             if (_context.Favourites.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId) != null)
@@ -125,79 +124,15 @@ namespace MagazinchikAPI.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task AddToCart(long productId, HttpContext context)
-        {
-            var jwtId = await UserIsOk(context);
-
-
-            var productToAdd = _context.CartProducts.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId);
-
-            if (productToAdd == null)
-            {
-                //Check if product exists
-                _ = await _context.Products.FindAsync(productId)
-            ?? throw new APIException("Product does not exist", 404);
-
-                //Create new CartProduct
-                productToAdd = new()
-                {
-                    ProductId = productId,
-                    UserId = jwtId,
-                    ProductCount = 1
-                };
-
-                await _context.CartProducts.AddAsync(productToAdd);
-            }
-
-            else productToAdd.ProductCount++;
-
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task RemoveFromCart(long productId, HttpContext context)
-        {
-            var jwtId = await UserIsOk(context);
-
-            var productToRemove = _context.CartProducts.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId)
-            ?? throw new APIException("Nothing to remove", 404);
-
-            _context.CartProducts.Remove(productToRemove);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DecreaseFromCart(long productId, HttpContext context)
-        {
-            var jwtId = await UserIsOk(context);
-
-
-            var productToDecrease = _context.CartProducts.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId)
-            ?? throw new APIException("Nothing to decrease", 404);
-
-            if (productToDecrease.ProductCount != 0) productToDecrease.ProductCount--;
-            else _context.CartProducts.Remove(productToDecrease);
-
-
-            await _context.SaveChangesAsync();
-        }
-
         public async Task RemoveFromFavourite(long productId, HttpContext context)
         {
-            var jwtId = await UserIsOk(context);
+            var jwtId = await _commonService.UserIsOk(context);
 
             var favouriteToRemove = _context.Favourites.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId)
             ?? throw new APIException("Nothing to remove", 404);
 
             _context.Favourites.Remove(favouriteToRemove);
             await _context.SaveChangesAsync();
-        }
-
-        private async Task<long> UserIsOk(HttpContext context)
-        {
-            long jwtId = Convert.ToInt64(context.User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new APIException("Broken acces token", 401));
-            _ = await _context.Users.FindAsync(jwtId) ?? throw new APIException("Undefined user", 401);
-
-            return jwtId;
         }
 
         private void FindAllParents(Cathegory? cathegory)

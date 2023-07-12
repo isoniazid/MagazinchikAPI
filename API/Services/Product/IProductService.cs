@@ -15,12 +15,6 @@ namespace MagazinchikAPI.Services
 
         public Task RemoveFromFavourite(long productId, HttpContext context);
 
-        public Task AddToCart(long productId, HttpContext context);
-
-        public Task RemoveFromCart(long productId, HttpContext context);
-
-        public Task DecreaseFromCart(long productId, HttpContext context);
-
         public List<ProductDtoBaseInfo> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit);
 
         public Task<List<ProductDtoBaseInfo>> GetRandomPersonal(HttpContext httpContext, int limit);

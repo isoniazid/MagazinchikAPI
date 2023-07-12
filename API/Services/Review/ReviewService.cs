@@ -14,9 +14,11 @@ namespace MagazinchikAPI.Services
         private readonly IValidator<ReviewDtoCreate> _reviewCreateValidator;
         private readonly IValidator<ReviewDtoUpdate> _reviewUpdateValidator;
         private readonly IMapper _mapper;
-        public ReviewService(ApplicationDbContext context, IMapper mapper, IValidator<ReviewDtoCreate> reviewCreateValidator,
+        private readonly CommonService _commonService;
+        public ReviewService(ApplicationDbContext context, CommonService commonService, IMapper mapper, IValidator<ReviewDtoCreate> reviewCreateValidator,
         IValidator<ReviewDtoUpdate> reviewUpdateValidator)
         {
+            _commonService = commonService;
             _mapper = mapper;
             _context = context;
             _reviewCreateValidator = reviewCreateValidator;
@@ -28,7 +30,7 @@ namespace MagazinchikAPI.Services
             var validation = _reviewCreateValidator.Validate(input);
             if (!validation.IsValid) throw new ValidatorException(validation);
 
-            var jwtId = await UserIsOk(context);
+            var jwtId = await _commonService.UserIsOk(context);
 
             //Check if these things exist
             var productToReview = await _context.Products.FindAsync(input.ProductId)
@@ -58,7 +60,7 @@ namespace MagazinchikAPI.Services
             var validation = _reviewUpdateValidator.Validate(input);
             if (!validation.IsValid) throw new ValidatorException(validation);
 
-            var jwtId = await UserIsOk(context);
+            var jwtId = await _commonService.UserIsOk(context);
 
             //Check if review was already created
             var reviewToUpdate = _context.Reviews.Include(x => x.Product).FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId)
@@ -137,15 +139,6 @@ namespace MagazinchikAPI.Services
             product.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-        }
-
-        private async Task<long> UserIsOk(HttpContext context)
-        {
-            long jwtId = Convert.ToInt64(context.User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new APIException("Broken acces token", 401));
-            _ = await _context.Users.FindAsync(jwtId) ?? throw new APIException("Undefined user", 401);
-
-            return jwtId;
         }
     }
 }

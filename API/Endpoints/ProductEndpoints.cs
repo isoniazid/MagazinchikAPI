@@ -30,17 +30,6 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapDelete("api/product/remove_from_favourite", RemoveFromFavourite).WithTags("User")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
-
-            app.MapPost("api/product/add_to_cart", AddToCart).WithTags("User")
-            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
-
-            app.MapDelete("api/product/remove_from_cart", RemoveFromCart).WithTags("User")
-            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
-
-            app.MapPut("api/product/decrease_from_cart", DecreaseFromCart).WithTags("User")
-            .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
-
-
         }
 
         public async Task<IResult> GetAll(IProductService service)
@@ -70,27 +59,6 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> RemoveFromFavourite(IProductService service, [FromQuery] long productId, HttpContext context)
         {
             await service.RemoveFromFavourite(productId, context);
-            return Results.Ok();
-        }
-
-        [Authorize]
-        public async Task<IResult> AddToCart(IProductService service, [FromQuery] long productId, HttpContext context)
-        {
-            await service.AddToCart(productId, context);
-            return Results.Ok();
-        }
-
-        [Authorize]
-        public async Task<IResult> RemoveFromCart(IProductService service, [FromQuery] long productId, HttpContext context)
-        {
-            await service.RemoveFromCart(productId, context);
-            return Results.Ok();
-        }
-
-        [Authorize]
-        public async Task<IResult> DecreaseFromCart(IProductService service, [FromQuery] long productId, HttpContext context)
-        {
-            await service.DecreaseFromCart(productId, context);
             return Results.Ok();
         }
 
