@@ -63,6 +63,7 @@ public static class Starter
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IPhotoService, PhotoService>();
+        builder.Services.AddScoped<IReviewService, ReviewService>();
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("MicroServices added");
@@ -75,6 +76,7 @@ public static class Starter
         new ProductEndpoints().Define(app);
         new AuthEndpoints().Define(app);
         new PhotoEndpoints().Define(app);
+        new ReviewEndpoints().Define(app);
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("Endpoints registered");

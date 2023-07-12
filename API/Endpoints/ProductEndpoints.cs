@@ -1,4 +1,3 @@
-using MagazinchikAPI.DTO.Review;
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
@@ -25,22 +24,6 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapGet("api/product/popular", GetPopular).WithTags("Common")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
-
-            app.MapGet("api/product/review/all_for_product", GetReviewsForProduct).WithTags("Common")
-            .Produces<DTO.Page<ReviewDtoBaseInfo>>().Produces<APIErrorMessage>(400);
-
-            app.MapGet("api/product/review/ratelist", GetProductRateList).WithTags("Common")
-            .Produces<ReviewDtoRateList>().Produces<APIErrorMessage>(404);
-
-            app.MapPost("api/product/leave_review", LeaveReview).WithTags("User")
-            .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK)
-            .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
-            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
-
-            app.MapPut("api/product/update_review", UpdateReview).WithTags("User")
-            .Produces<ReviewDtoCreateResult>(200)
-            .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
-            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404);
 
             app.MapPost("api/product/add_to_favourite", AddToFavourite).WithTags("User")
             .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400).Produces(200);
@@ -74,20 +57,6 @@ namespace MagazinchikAPI.Endpoints
         {
             await service.Create(dto);
             return Results.Ok();
-        }
-
-
-        [Authorize]
-        public async Task<IResult> LeaveReview(IProductService service, [FromBody] DTO.ReviewDtoCreate dto, HttpContext context)
-        {
-            return Results.Ok(await service.LeaveReview(dto, context));
-        }
-
-
-        [Authorize]
-        public async Task<IResult> UpdateReview(IProductService service, [FromBody] DTO.ReviewDtoUpdate dto, HttpContext context)
-        {
-            return Results.Ok(await service.UpdateReview(dto, context));
         }
 
         [Authorize]
@@ -140,19 +109,6 @@ namespace MagazinchikAPI.Endpoints
         {
             return Results.Ok(service.GetPopular(limit, offset));
         }
-
-        public IResult GetReviewsForProduct(IProductService service, [FromQuery] long productId, [FromQuery] int limit, [FromQuery] int offset)
-        {
-            return Results.Ok(service.GetReviewsForProduct(productId, limit, offset));
-        }
-
-        public IResult GetProductRateList(IProductService service, [FromQuery] long productId)
-        {
-            return Results.Ok(service.GetProductRateList(productId));
-        }
-
-
-
 
     }
 }
