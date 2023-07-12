@@ -60,7 +60,7 @@ public static class Starter
 
     public static void AddMicroServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<CommonService>();
+        builder.Services.AddScoped<CommonService>();
         builder.Services.AddScoped<ICathegoryService, CathegoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
