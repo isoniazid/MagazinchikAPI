@@ -55,6 +55,7 @@ namespace MagazinchikAPI.Services
             {
                 Value = Convert.ToBase64String(encrypter.ComputeHash(rTokenVal)),
                 User = user,
+                Expires = DateTime.UtcNow+Starter.RefreshTokenTime
             };
         }
 
@@ -150,8 +151,19 @@ namespace MagazinchikAPI.Services
           ?? throw new APIException("Невозможно удалить RefreshToken, т.к. он отсутствует в cookie", StatusCodes.Status401Unauthorized);
             httpContext.Response.Cookies.Delete("refresh_token");
 
-            var tokenToDelete = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Value == refreshTokenFromCookies);
-            _context.RefreshTokens.Remove(tokenToDelete ?? throw new APIException("Токен отсутствует в БД", 401));
+
+            
+            var currentUserRefreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Value == refreshTokenFromCookies);
+
+            await DeleteUserRefreshTokensFromDb(currentUserRefreshToken!.UserId);
+            
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task DeleteUserRefreshTokensFromDb(long userId)
+        {
+            var refreshTokensToDelete = _context.RefreshTokens.Where(x => x.UserId == userId).ToListAsync();
+            _context.RemoveRange(refreshTokensToDelete);
             await _context.SaveChangesAsync();
         }
 

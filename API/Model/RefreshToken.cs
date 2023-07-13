@@ -11,13 +11,6 @@ namespace MagazinchikAPI.Model
 
         public User User { get; set; } = new();
 
-        private readonly DateTime Expires_;
-
-        //NB peredelay!!!1111 
-        public DateTime Expires
-        {
-            get => Expires_;
-            init => Expires_ = DateTime.UtcNow + Starter.RefreshTokenTime;
-        }
+        public DateTime Expires { get; set; }
     }
 }
