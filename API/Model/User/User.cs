@@ -19,6 +19,8 @@ namespace MagazinchikAPI.Model
         public List<Review>? Reviews { get; set; }
         public List<RefreshToken>? RefreshTokens { get; set; }
 
+        public List<Address>? Addresses {get; set;}
+
         public DateTime? CreatedAt {get; set;}
         public DateTime? UpdatedAt {get; set;}
 

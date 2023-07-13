@@ -12,5 +12,9 @@ namespace MagazinchikAPI.Model
 
         public string Flat { get; set; } = String.Empty;
 
+        public long? UserId {get; set;}
+
+        public User? User {get; set;} 
+
     }
 }

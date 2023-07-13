@@ -67,6 +67,7 @@ public static class Starter
         builder.Services.AddScoped<IPhotoService, PhotoService>();
         builder.Services.AddScoped<IReviewService, ReviewService>();
         builder.Services.AddScoped<ICartService, CartService>();
+        builder.Services.AddScoped<IOrderService, OrderService>();
         
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -82,6 +83,7 @@ public static class Starter
         new PhotoEndpoints().Define(app);
         new ReviewEndpoints().Define(app);
         new CartEndpoints().Define(app);
+        new OrderEndpoints().Define(app);
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("Endpoints registered");

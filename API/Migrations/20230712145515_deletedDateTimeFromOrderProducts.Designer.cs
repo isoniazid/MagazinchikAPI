@@ -3,6 +3,7 @@ using System;
 using MagazinchikAPI.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MagazinchikAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230712145515_deletedDateTimeFromOrderProducts")]
+    partial class deletedDateTimeFromOrderProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,14 +74,9 @@ namespace MagazinchikAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Addresses");
+                    b.ToTable("Adresses");
                 });
 
             modelBuilder.Entity("MagazinchikAPI.Model.CartProduct", b =>
@@ -163,7 +161,7 @@ namespace MagazinchikAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AddressId")
+                    b.Property<long>("AddressId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -178,12 +176,10 @@ namespace MagazinchikAPI.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("UserId")
+                    b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("UserId");
 
@@ -198,17 +194,14 @@ namespace MagazinchikAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("OrderId")
+                    b.Property<long>("OrderId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("ProductCount")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ProductId")
+                    b.Property<long>("ProductId")
                         .HasColumnType("bigint");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -396,15 +389,6 @@ namespace MagazinchikAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MagazinchikAPI.Model.Address", b =>
-                {
-                    b.HasOne("MagazinchikAPI.Model.User", "User")
-                        .WithMany("Addresses")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("MagazinchikAPI.Model.CartProduct", b =>
                 {
                     b.HasOne("MagazinchikAPI.Model.Product", "Product")
@@ -448,15 +432,11 @@ namespace MagazinchikAPI.Migrations
 
             modelBuilder.Entity("MagazinchikAPI.Model.Order", b =>
                 {
-                    b.HasOne("MagazinchikAPI.Model.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
                     b.HasOne("MagazinchikAPI.Model.User", "User")
                         .WithMany("Orders")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Address");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -465,11 +445,15 @@ namespace MagazinchikAPI.Migrations
                 {
                     b.HasOne("MagazinchikAPI.Model.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("MagazinchikAPI.Model.Product", "Product")
                         .WithMany("OrderProducts")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
 
@@ -535,8 +519,6 @@ namespace MagazinchikAPI.Migrations
 
             modelBuilder.Entity("MagazinchikAPI.Model.User", b =>
                 {
-                    b.Navigation("Addresses");
-
                     b.Navigation("CartProducts");
 
                     b.Navigation("Favourites");
