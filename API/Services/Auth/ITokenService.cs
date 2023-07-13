@@ -10,7 +10,7 @@ public interface ITokenService
 
     RefreshToken BuildRefreshToken(User user);
 
-    Task<string> Refresh(HttpContext context);
+    Task<UserDtoRefresh> Refresh(HttpContext context);
 
     Task Logout(HttpContext context);
 

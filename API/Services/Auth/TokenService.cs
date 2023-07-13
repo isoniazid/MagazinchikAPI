@@ -58,7 +58,7 @@ namespace MagazinchikAPI.Services
             };
         }
 
-        public async Task<string> Refresh(HttpContext httpContext)
+        public async Task<UserDtoRefresh> Refresh(HttpContext httpContext)
         {
             string refreshTokenFromCookies = httpContext.Request.Cookies["refresh_token"] ?? throw new APIException("Отсутствует RefreshToken в cookie", StatusCodes.Status401Unauthorized);
 
@@ -79,7 +79,13 @@ namespace MagazinchikAPI.Services
                 SaveToCookies(httpContext, currentRefreshToken);
             }
 
-            return BuildAccessToken(_mapper.Map<UserDtoToken>(currentRefreshToken.User));
+           
+
+            var result = _mapper.Map<UserDtoRefresh>(currentRefreshToken.User);
+
+            result.AccessToken = BuildAccessToken(_mapper.Map<UserDtoToken>(currentRefreshToken.User));
+
+            return result;
 
         }
 
