@@ -162,7 +162,7 @@ namespace MagazinchikAPI.Services
 
         private async Task DeleteUserRefreshTokensFromDb(long userId)
         {
-            var refreshTokensToDelete = _context.RefreshTokens.Where(x => x.UserId == userId).ToListAsync();
+            var refreshTokensToDelete = await _context.RefreshTokens.Where(x => x.UserId == userId).ToListAsync();
             _context.RemoveRange(refreshTokensToDelete);
             await _context.SaveChangesAsync();
         }
