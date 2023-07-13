@@ -88,6 +88,8 @@ namespace MagazinchikAPI.Services
             var validation = _loginValidator.Validate(loggingUser);
             if (!validation.IsValid) throw new ValidatorException(validation);
 
+            loggingUser.Password = loggingUser.HashPassword(loggingUser.Password, loggingUser.Email);
+
             var existingUser = await _context.Users
             .FirstOrDefaultAsync(x => x.Password == loggingUser.Password && x.Email == loggingUser.Email)
             ?? throw new APIException("Incorrect login or password", 401);
@@ -131,7 +133,7 @@ namespace MagazinchikAPI.Services
 
             SaveToCookies(httpContext, refreshToken);
 
-            var result = _mapper.Map<UserDtoRegistered>(regDto);
+            var result = _mapper.Map<UserDtoRegistered>(userToSave);
             result.AccessToken = accessToken;
             return result;
         }
