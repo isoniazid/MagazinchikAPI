@@ -121,7 +121,8 @@ namespace MagazinchikAPI.Services
             var validation = _registrationValidator.Validate(regDto);
             if (!validation.IsValid) throw new ValidatorException(validation);
 
-
+            var (exists, prop) = await UserExists(regDto.Name, regDto.Email);
+            if(exists) throw new APIException($"User with such {prop} already exists", 400);
 
             var userToSave = _mapper.Map<User>(regDto);
             (userToSave.UpdatedAt, userToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
@@ -175,6 +176,15 @@ namespace MagazinchikAPI.Services
             }
 
             context.Response.Cookies.Append("refresh_token", token.Value, new CookieOptions() { Secure = true, HttpOnly = true, MaxAge = new TimeSpan(45, 0, 0, 0) });
+        }
+
+        private async Task<(bool exists, string? prop)> UserExists(string name, string email)
+        {
+            if(await _context.Users.FirstOrDefaultAsync(x => x.Name == name) != null) return (exists: true, prop: "name");
+
+            if(await _context.Users.FirstOrDefaultAsync(x => x.Email == email) != null) return (exists: true, prop: "email");
+            
+            return (exists: false, prop: null);
         }
     }
 }

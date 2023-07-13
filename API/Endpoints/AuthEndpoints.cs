@@ -11,7 +11,8 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("/api/auth/register", Register)
             .Accepts<UserDtoRegistration>("application/json")
             .Produces<UserDtoRegistered>(StatusCodes.Status200OK).WithTags("Auth")
-            .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity);
+            .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
+            .Produces<APIErrorMessage>(StatusCodes.Status400BadRequest);
 
             app.MapGet("/api/auth/logout", Logout).WithTags("Auth")
             .Produces<APIErrorMessage>(401).Produces(200);
