@@ -42,9 +42,16 @@ public class ExceptionHandlerMiddleware
     private static async Task HandleAPIMessageAsync(HttpContext context, APIException exception)
     // Ошибки сервера, связанные с API. Они вполне могут возникать
     {
+        
         context.Response.ContentType = "application/json";
 
         var result = JsonSerializer.Serialize(new APIErrorMessage(exception));
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("APIException Occured");
+        Console.WriteLine(result);
+        Console.ResetColor();
+
 
         context.Response.StatusCode = exception.StatusCode;
         await context.Response.WriteAsync(result);
@@ -58,6 +65,11 @@ public class ExceptionHandlerMiddleware
         
         var result = JsonSerializer.Serialize(new ValidatorErrorMessage(exception));
 
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("ValidationException Occured");
+        Console.WriteLine(result);
+        Console.ResetColor();
+
         await context.Response.WriteAsync(result);   
     }
 
@@ -65,10 +77,14 @@ public class ExceptionHandlerMiddleware
     // Если чего-то нет, то это нормально, что оно не работает
     {
         context.Response.ContentType = "application/json";
+        context.Response.StatusCode = StatusCodes.Status501NotImplemented;
 
         var result = JsonSerializer.Serialize(new { statusCode = 501, message = "Эта функция пока не реализована"});
 
-        context.Response.StatusCode = StatusCodes.Status501NotImplemented;
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("NotImplementedException Occured");
+        Console.WriteLine(result);
+        Console.ResetColor();
         
         await context.Response.WriteAsync(result);
     }
@@ -79,6 +95,11 @@ public class ExceptionHandlerMiddleware
         context.Response.ContentType = "application/json";
 
         var result = JsonSerializer.Serialize(new { statusCode = 500, message = exception.ToString()});
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Something serious occured...");
+        Console.WriteLine(result);
+        Console.ResetColor();
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         
