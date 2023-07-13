@@ -16,9 +16,10 @@ namespace MagazinchikAPI.Services
         public async Task CreateOrder(HttpContext context, long addressId)
         {
             var jwtId = await _commonService.UserIsOk(context);
+
+
             var address = await _context.Addresses.FindAsync(addressId)
             ?? throw new APIException("Address does not exist", 404);
-
             if (address.UserId != jwtId)
                 throw new APIException("The address does not relate to user", 401);
 
@@ -44,28 +45,16 @@ namespace MagazinchikAPI.Services
             await ClearCart(jwtId);
         }
 
-        private async Task ClearCart(long userId)
-        {
-            var elementsToClear = await _context.CartProducts.Where(x => x.UserId == userId).ToListAsync();
-            if(elementsToClear.IsNullOrEmpty()) throw new Exception("Nothing to clear!");
-
-            _context.CartProducts.RemoveRange(elementsToClear);
-            await _context.SaveChangesAsync();
-        }
-
         private async Task<List<OrderProduct>> CreateOrderProducts(long userId, Order order)
         {
             var orderProducts = new List<OrderProduct>();
 
             var userCartProducts = await _context.CartProducts.Where(x => x.UserId == userId).ToListAsync();
-            if(userCartProducts.IsNullOrEmpty()) throw new APIException("Nothing in cart", 404);
+            if (userCartProducts.IsNullOrEmpty()) throw new APIException("Nothing in cart", 404);
 
             foreach (var element in userCartProducts)
             {
-                var product = await _context.Products.FindAsync(element.ProductId)
-                ?? throw new APIException("no such product", 404);
-
-                var totalPrice = product.Price * element.ProductCount;
+                var totalPrice = await CalculateProductTotalPrice(element.ProductId, element.ProductCount);
 
                 orderProducts.Add(new()
                 {
@@ -77,6 +66,23 @@ namespace MagazinchikAPI.Services
             }
 
             return orderProducts;
+        }
+
+        private async Task ClearCart(long userId)
+        {
+            var elementsToClear = await _context.CartProducts.Where(x => x.UserId == userId).ToListAsync();
+            if (elementsToClear.IsNullOrEmpty()) throw new Exception("Nothing to clear!");
+
+            _context.CartProducts.RemoveRange(elementsToClear);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task<decimal> CalculateProductTotalPrice(long? productId, long productCount)
+        {
+            var product = await _context.Products.FindAsync(productId)
+                ?? throw new APIException("no such product", 404);
+
+            return productCount * product.Price;
         }
     }
 }
