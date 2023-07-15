@@ -37,9 +37,9 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(await service.GetAll());
         }
 
-        public async Task<IResult> GetBaseInfo(IProductService service, [FromQuery] long productId)
+        public async Task<IResult> GetBaseInfo(IProductService service, [FromQuery] long productId, HttpContext context)
         {
-            return Results.Ok(await service.GetBaseInfo(productId));
+            return Results.Ok(await service.GetBaseInfo(productId, context));
         }
 
         public async Task<IResult> Create(IProductService service, [FromBody] DTO.ProductDtoCreate dto)

@@ -43,7 +43,7 @@ namespace MagazinchikAPI.Services
             }
             return result;
         }
-        public async Task<ProductDtoBaseInfo> GetBaseInfo(long productId)
+        public async Task<ProductDtoBaseInfo> GetBaseInfo(long productId, HttpContext httpContext)
         {
             var productFromDb = await _context.Products
             .Include(x => x.Cathegory)
@@ -56,6 +56,8 @@ namespace MagazinchikAPI.Services
             var result = _mapper.Map<ProductDtoBaseInfo>(productFromDb);
             result.ReviewNoTextCount = productFromDb.Reviews == null ?
             0 : productFromDb.Reviews.Where(x => x.Text == null).Count();
+            
+            SaveExceptProductToCookies(httpContext, result.Id);
 
             return result;
 
@@ -94,22 +96,19 @@ namespace MagazinchikAPI.Services
             .ExceptBy(idsFromCookies, x => x.Id)
             .Take(limit);
 
-            SaveExceptProductsToCookies(httpContext, result.Select(x => x.Id));
-
             return _mapper.Map<List<ProductDtoBaseInfo>>(result);
         }
         public List<ProductDtoBaseInfo> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit)
         {
+
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
 
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
 
 
-            var result = _context.Products.Where(x => x.CathegoryId == cathegoryId)
+            var result = _context.Products.Where(x => x.CathegoryId == cathegoryId).Include(x => x.Photos)
             .OrderBy(x => EF.Functions.Random()).Take(limit).ToList().ExceptBy(idsFromCookies, x => x.Id);
-
-            SaveExceptProductsToCookies(httpContext, result.Select(x => x.Id));
 
             return _mapper.Map<List<ProductDtoBaseInfo>>(result);
         }
@@ -151,7 +150,7 @@ namespace MagazinchikAPI.Services
             if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
         }
 
-        private static void SaveExceptProductsToCookies(HttpContext context, IEnumerable<long> ids)
+        private static void SaveExceptProductToCookies(HttpContext context, long id)
         {
             //NB а что если куки наберется больше 4 кб?
             var idsFromCookies = new List<long>();
@@ -162,7 +161,7 @@ namespace MagazinchikAPI.Services
                 ?? throw new Exception("can't deserialize cookie");
             }
 
-            idsFromCookies.AddRange(ids);
+            idsFromCookies.Add(id);
             idsFromCookies = idsFromCookies.Distinct().ToList();
 
             context.Response.Cookies.Delete("except_products");

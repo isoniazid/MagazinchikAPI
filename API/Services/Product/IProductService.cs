@@ -9,7 +9,7 @@ namespace MagazinchikAPI.Services
 
         public Task<List<ProductDtoBaseInfo>> GetAll();
 
-        public Task<ProductDtoBaseInfo> GetBaseInfo(long productId);
+        public Task<ProductDtoBaseInfo> GetBaseInfo(long productId, HttpContext httpContext);
 
         public Task AddToFavourite(long productId, HttpContext context);
 
