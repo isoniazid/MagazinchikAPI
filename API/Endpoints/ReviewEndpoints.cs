@@ -8,18 +8,18 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapGet("api/review/all_with_text_for_product", GetReviewsForProduct).WithTags("Common")
+            app.MapGet("api/review/all_with_text_for_product", GetReviewsForProduct).WithTags("Review")
            .Produces<DTO.Page<ReviewDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
-            app.MapGet("api/review/ratelist", GetProductRateList).WithTags("Common")
+            app.MapGet("api/review/ratelist", GetProductRateList).WithTags("Review")
             .Produces<ReviewDtoRateList>().Produces<APIErrorMessage>(404);
 
-            app.MapPost("api/review/create", LeaveReview).WithTags("User")
+            app.MapPost("api/review/create", LeaveReview).WithTags("Review")
             .Produces<ReviewDtoCreateResult>(StatusCodes.Status200OK)
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
 
-            app.MapPut("api/review/update", UpdateReview).WithTags("User")
+            app.MapPut("api/review/update", UpdateReview).WithTags("Review")
             .Produces<ReviewDtoCreateResult>(200)
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404);

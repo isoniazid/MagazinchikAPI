@@ -8,13 +8,13 @@ namespace API.Endpoints
 
         public void Define(WebApplication app)
         {
-            app.MapPost("api/cart/add", AddToCart).WithTags("User")
+            app.MapPost("api/cart/add", AddToCart).WithTags("Cart")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
 
-            app.MapDelete("api/cart/remove", RemoveFromCart).WithTags("User")
+            app.MapDelete("api/cart/remove", RemoveFromCart).WithTags("Cart")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
 
-            app.MapPut("api/cart/decrease", DecreaseFromCart).WithTags("User")
+            app.MapPut("api/cart/decrease", DecreaseFromCart).WithTags("Cart")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
 
         }

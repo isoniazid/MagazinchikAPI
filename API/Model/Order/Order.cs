@@ -8,12 +8,14 @@ namespace MagazinchikAPI.Model
         public User? User { get; set; }
         public long? UserId { get; set; }
 
-        public List<OrderProduct> OrderProducts = new();
+        public List<OrderProduct>? OrderProducts {get; set;}
 
         public Address? Address {get; set;}
         public long? AddressId { get; set; }
 
         public DateTime? CreatedAt {get; set;}
         public DateTime? UpdatedAt {get; set;}
+
+        public string? PaymentId {get; set;}
     }
 }

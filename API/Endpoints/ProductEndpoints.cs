@@ -13,22 +13,22 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("api/product/create", Create).WithTags("Admin")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
 
-            app.MapGet("api/product/detail", GetBaseInfo).WithTags("Common")
+            app.MapGet("api/product/detail", GetBaseInfo).WithTags("Product")
             .Produces<DTO.ProductDtoBaseInfo>().Produces<APIErrorMessage>(404);
 
-            app.MapGet("api/product/random_from_cathegory", GetRandomByCathegory).WithTags("Common")
+            app.MapGet("api/product/random_from_cathegory", GetRandomByCathegory).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>();
 
-            app.MapGet("api/product/random_personal", GetRandomPersonal).WithTags("User")
+            app.MapGet("api/product/random_personal", GetRandomPersonal).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
 
-            app.MapGet("api/product/popular", GetPopular).WithTags("Common")
+            app.MapGet("api/product/popular", GetPopular).WithTags("Product")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
-            app.MapPost("api/product/add_to_favourite", AddToFavourite).WithTags("User")
+            app.MapPost("api/product/add_to_favourite", AddToFavourite).WithTags("Product")
             .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400).Produces(200);
 
-            app.MapDelete("api/product/remove_from_favourite", RemoveFromFavourite).WithTags("User")
+            app.MapDelete("api/product/remove_from_favourite", RemoveFromFavourite).WithTags("Product")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
         }
 

@@ -5,10 +5,16 @@ using MagazinchikAPI.Validators;
 using FluentValidation;
 using MagazinchikAPI.Services.Photo;
 using API.Endpoints;
+using Yandex.Checkout.V3;
+using Quartz;
+using Quartz.AspNetCore;
+using API.Services.Jobs;
 
 public static class Starter
 {
 
+    private const string SHOP_ID = "229932";
+    private const string SECRET_KEY = "test_X6tPeIW1-07vdGAhwRMRfeFCHjtLFT4z7wzlfC_MErA";
     public static byte[] PASSWORD_HASH_KEY { get; private set; } = new byte[1];
     public static byte[] REFRESH_HASH_KEY { get; private set; } = new byte[1];
     public static string JWT_ISSUER { get; private set; } = string.Empty;
@@ -37,12 +43,32 @@ public static class Starter
 
         AddMicroServices(builder);
 
+        builder.Services.AddQuartz(ConfigureQuartz);
+
+        builder.Services.AddQuartzServer(x =>
+        {
+            x.WaitForJobsToComplete = true;
+        });
+
         builder.Services.AddAuthorization();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => options.TokenValidationParameters = ConfigureJwtBearer(builder));
 
 
         builder.Services.AddCors();
+    }
+
+    private static void ConfigureQuartz(IServiceCollectionQuartzConfigurator configurator)
+    {
+        configurator.UseMicrosoftDependencyInjectionJobFactory();
+        var jobKey = new JobKey("PaymentChecker");
+        configurator.AddJob<PaymentChecker>(options => options.WithIdentity(jobKey));
+
+        configurator.AddTrigger(x => x
+        .ForJob(jobKey)
+        .WithIdentity("PaymentCheckTrigger", "default")     // идентифицируем триггер с именем и группой
+        .StartNow()                            // запуск сразу после начала выполнения 
+        .WithSimpleSchedule( x => x.WithIntervalInMinutes(1).RepeatForever()));
     }
 
     public static void AddValidators(WebApplicationBuilder builder)
@@ -60,6 +86,8 @@ public static class Starter
 
     public static void AddMicroServices(WebApplicationBuilder builder)
     {
+        builder.Services.AddSingleton(new Yandex.Checkout.V3.Client(shopId: SHOP_ID, secretKey: SECRET_KEY).MakeAsync());
+        builder.Services.AddSingleton<IPaymentService, PaymentService>();
         builder.Services.AddScoped<CommonService>();
         builder.Services.AddScoped<ICathegoryService, CathegoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
@@ -68,7 +96,7 @@ public static class Starter
         builder.Services.AddScoped<IReviewService, ReviewService>();
         builder.Services.AddScoped<ICartService, CartService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
-        
+
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("MicroServices added");
@@ -119,8 +147,8 @@ public static class Starter
             using var scope = app.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-           /*  db.Database.EnsureDeleted();
-            db.Database.EnsureCreated(); */
+            /*  db.Database.EnsureDeleted();
+             db.Database.EnsureCreated(); */
         }
 
         app.UseCors(builder =>

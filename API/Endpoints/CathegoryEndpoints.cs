@@ -14,7 +14,7 @@ namespace MagazinchikAPI.Endpoints
             .Produces<APIErrorMessage>(400);
 
 
-            app.MapGet("api/cathegory/random", GetRandomCathegories).WithTags("Common")
+            app.MapGet("api/cathegory/random", GetRandomCathegories).WithTags("Cathegory")
             .Produces<CathegoryDtoCreated>(200)
             .Produces<APIErrorMessage>(400);
         }

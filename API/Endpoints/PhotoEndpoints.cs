@@ -7,16 +7,16 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapGet("api/photo", GetPhoto).WithTags("Common")
+            app.MapGet("api/photo", GetPhoto).WithTags("Photo")
             .Produces(200).Produces<APIErrorMessage>(404);
 
-            app.MapPost("api/photo/upload", UploadPhoto).WithTags("Admin")
+            app.MapPost("api/photo/upload", UploadPhoto).WithTags("Photo")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
 
-            app.MapDelete("api/photo/delete", DeletePhoto).WithTags("Admin")
+            app.MapDelete("api/photo/delete", DeletePhoto).WithTags("Photo")
             .Produces(200).Produces<APIErrorMessage>(404);
 
-            app.MapPut("api/photo/change_order", ChangeOrder).WithTags("Admin")
+            app.MapPut("api/photo/change_order", ChangeOrder).WithTags("Photo")
              .Produces(200).Produces<APIErrorMessage>(400);
         }
 

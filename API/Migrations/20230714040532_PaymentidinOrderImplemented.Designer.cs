@@ -3,6 +3,7 @@ using System;
 using MagazinchikAPI.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MagazinchikAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230714040532_PaymentidinOrderImplemented")]
+    partial class PaymentidinOrderImplemented
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -467,7 +470,7 @@ namespace MagazinchikAPI.Migrations
             modelBuilder.Entity("MagazinchikAPI.Model.OrderProduct", b =>
                 {
                     b.HasOne("MagazinchikAPI.Model.Order", "Order")
-                        .WithMany("OrderProducts")
+                        .WithMany()
                         .HasForeignKey("OrderId");
 
                     b.HasOne("MagazinchikAPI.Model.Product", "Product")
@@ -521,11 +524,6 @@ namespace MagazinchikAPI.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MagazinchikAPI.Model.Order", b =>
-                {
-                    b.Navigation("OrderProducts");
                 });
 
             modelBuilder.Entity("MagazinchikAPI.Model.Product", b =>
