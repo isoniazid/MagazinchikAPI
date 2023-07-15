@@ -30,6 +30,8 @@ namespace MagazinchikAPI.Services
                 await HandlePaymentState(ordersToCheck[i]);
             }
 
+            await _context.SaveChangesAsync();
+
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine($"Checked {ordersToCheck.Count}");
             Console.ResetColor();
@@ -49,6 +51,8 @@ namespace MagazinchikAPI.Services
                 await HandlePaymentState(ordersToCheck[i]);
             }
 
+            await _context.SaveChangesAsync();
+
         }
 
         private async Task HandlePaymentState(Order order)
@@ -67,13 +71,11 @@ namespace MagazinchikAPI.Services
                 case PaymentState.PAID:
                     order.OrderStatus = OrderStatus.PROCESSING;
                     order.UpdatedAt = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
                     break;
 
                 case PaymentState.CANCELLED:
                     order.OrderStatus = OrderStatus.CANCELLED;
                     order.UpdatedAt = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
                     break;
 
                 case PaymentState.UNKNOWN:
