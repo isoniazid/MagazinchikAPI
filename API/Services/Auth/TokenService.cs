@@ -150,7 +150,8 @@ namespace MagazinchikAPI.Services
         {
             string refreshTokenFromCookies = httpContext.Request.Cookies["refresh_token"]
           ?? throw new APIException("Невозможно удалить RefreshToken, т.к. он отсутствует в cookie", StatusCodes.Status401Unauthorized);
-            httpContext.Response.Cookies.Delete("refresh_token");
+            
+            ClearCookies(httpContext);
 
 
             
@@ -185,6 +186,12 @@ namespace MagazinchikAPI.Services
             if(await _context.Users.FirstOrDefaultAsync(x => x.Email == email) != null) return (exists: true, prop: "email");
             
             return (exists: false, prop: null);
+        }
+
+        private static void ClearCookies(HttpContext context)
+        { 
+            foreach(var cookie in context.Request.Cookies.Keys)
+            context.Response.Cookies.Delete(cookie);
         }
     }
 }
