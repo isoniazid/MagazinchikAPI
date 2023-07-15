@@ -9,6 +9,7 @@ using Yandex.Checkout.V3;
 using Quartz;
 using Quartz.AspNetCore;
 using API.Services.Jobs;
+using MagazinchikAPI.Services.Address;
 
 public static class Starter
 {
@@ -78,6 +79,7 @@ public static class Starter
         builder.Services.AddValidatorsFromAssemblyContaining<CathegoryDtoCreateValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ReviewDtoCreateValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ReviewDtoUpdateValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<AddressDtoCreateValidator>();
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("Validators added");
@@ -96,6 +98,7 @@ public static class Starter
         builder.Services.AddScoped<IReviewService, ReviewService>();
         builder.Services.AddScoped<ICartService, CartService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
+        builder.Services.AddScoped<IAddressService, AddressService>();
 
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -112,6 +115,7 @@ public static class Starter
         new ReviewEndpoints().Define(app);
         new CartEndpoints().Define(app);
         new OrderEndpoints().Define(app);
+        new AddressEndpoints().Define(app);
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("Endpoints registered");
