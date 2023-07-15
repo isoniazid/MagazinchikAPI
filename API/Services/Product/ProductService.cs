@@ -69,6 +69,7 @@ namespace MagazinchikAPI.Services
 
             var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(
                 _context.Products
+                .Include(x => x.Photos)
                 .OrderByDescending(x => x.Purchases)
                 .Skip(offset * limit)
                 .Take(limit));
@@ -88,6 +89,7 @@ namespace MagazinchikAPI.Services
             var favouriteCathegoriesIds = _context.Favourites.Include(x => x.Product).Where(x => x.UserId == jwtId).Select(x => x.Product!.CathegoryId).ToList();
 
             var result = _context.Products.Where(x => favouriteCathegoriesIds.Contains(x.CathegoryId))
+            .Include(x => x.Photos)
             .OrderBy(x => EF.Functions.Random()).ToList()
             .ExceptBy(idsFromCookies, x => x.Id)
             .Take(limit);

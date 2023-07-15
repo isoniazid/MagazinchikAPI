@@ -17,12 +17,13 @@ namespace MagazinchikAPI.Endpoints
             
         }
 
-
+        [Authorize]
         public async Task<IResult> CreateAddress(IAddressService service, HttpContext context, [FromBody] AddressDtoCreate input)
         {
             return Results.Ok(await service.CreateAddress(input, context));
         }
 
+        [Authorize]
         public async Task<IResult> GetAllForUser(IAddressService service, HttpContext context)
         {
             return Results.Ok(await service.GetAllForUser(context));
