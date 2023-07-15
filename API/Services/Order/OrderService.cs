@@ -44,7 +44,7 @@ namespace MagazinchikAPI.Services
              && x.PaymentId != null
              && x.UserId == jwtId).ToListAsync();
 
-             for (int i = 0; i < ordersToCheck.Count; ++i)
+            for (int i = 0; i < ordersToCheck.Count; ++i)
             {
                 await HandlePaymentState(ordersToCheck[i]);
             }
@@ -66,11 +66,13 @@ namespace MagazinchikAPI.Services
 
                 case PaymentState.PAID:
                     order.OrderStatus = OrderStatus.PROCESSING;
+                    order.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                     break;
 
                 case PaymentState.CANCELLED:
                     order.OrderStatus = OrderStatus.CANCELLED;
+                    order.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                     break;
 
