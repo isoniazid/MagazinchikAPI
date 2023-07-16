@@ -8,7 +8,7 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapGet("/api/address/all_user", GetAllForUser).WithTags("Address")
+            app.MapGet("/api/address/all-user", GetAllForUser).WithTags("Address")
             .Produces<List<AddressDtoBaseInfo>>(200).Produces<APIErrorMessage>(401);
 
             app.MapPost("/api/address/create", CreateAddress).WithTags("Address")

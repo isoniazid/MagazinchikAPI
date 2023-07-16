@@ -16,7 +16,7 @@ namespace MagazinchikAPI.Endpoints
             app.MapDelete("api/photo/delete", DeletePhoto).WithTags("Photo")
             .Produces(200).Produces<APIErrorMessage>(404);
 
-            app.MapPut("api/photo/change_order", ChangeOrder).WithTags("Photo")
+            app.MapPut("api/photo/change-order", ChangeOrder).WithTags("Photo")
              .Produces(200).Produces<APIErrorMessage>(400);
         }
 

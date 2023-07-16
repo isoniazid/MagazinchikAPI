@@ -8,7 +8,7 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapGet("api/review/all_with_text_for_product", GetReviewsForProduct).WithTags("Review")
+            app.MapGet("api/review/all-with-text-for-product", GetReviewsForProduct).WithTags("Review")
            .Produces<DTO.Page<ReviewDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
             app.MapGet("api/review/ratelist", GetProductRateList).WithTags("Review")
