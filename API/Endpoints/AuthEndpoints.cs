@@ -18,7 +18,7 @@ namespace MagazinchikAPI.Endpoints
             .Produces<APIErrorMessage>(401).Produces(200);
 
             app.MapGet("/api/auth/refresh", Refresh).WithTags("Auth")
-            .Produces<APIErrorMessage>(401).Produces<string>(200);
+            .Produces<APIErrorMessage>(401).Produces<UserDtoRefresh>(200);
 
             app.MapPost("/api/auth/login", Login).WithTags("Auth")
             .Produces<UserDtoLogged>(200).Produces<APIErrorMessage>(401)

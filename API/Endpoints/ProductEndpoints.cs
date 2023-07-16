@@ -73,9 +73,9 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(await service.GetRandomByCathegory(cathegoryId, context, limit));
         }
 
-        public async Task<IResult> GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int offset, HttpContext context)
+        public async Task<IResult> GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int page, HttpContext context)
         {
-            return Results.Ok(await service.GetPopular(limit, offset, context));
+            return Results.Ok(await service.GetPopular(limit, page, context));
         }
 
     }

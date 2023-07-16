@@ -39,9 +39,9 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(await service.UpdateReview(dto, context));
         }
 
-        public IResult GetReviewsForProduct(IReviewService service, [FromQuery] long productId, [FromQuery] int limit, [FromQuery] int offset)
+        public IResult GetReviewsForProduct(IReviewService service, [FromQuery] long productId, [FromQuery] int limit, [FromQuery] int page)
         {
-            return Results.Ok(service.GetReviewsForProduct(productId, limit, offset));
+            return Results.Ok(service.GetReviewsForProduct(productId, limit, page));
         }
 
         public IResult GetProductRateList(IReviewService service, [FromQuery] long productId)
