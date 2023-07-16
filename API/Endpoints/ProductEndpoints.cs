@@ -63,14 +63,14 @@ namespace MagazinchikAPI.Endpoints
         }
 
         [Authorize]
-        public async Task<IResult> GetRandomPersonal(IProductService service, [FromQuery] int limit, HttpContext context)
+        public async Task<IResult> GetRandomPersonal(IProductService service, [FromQuery] int count, HttpContext context)
         {
-            return Results.Ok(await service.GetRandomPersonal(context, limit));
+            return Results.Ok(await service.GetRandomPersonal(context, count));
         }
 
-        public async Task<IResult> GetRandomByCathegory(IProductService service, [FromQuery] long cathegoryId, [FromQuery] int limit, HttpContext context)
+        public async Task<IResult> GetRandomByCathegory(IProductService service, [FromQuery] long cathegoryId, [FromQuery] int count, HttpContext context)
         {
-            return Results.Ok(await service.GetRandomByCathegory(cathegoryId, context, limit));
+            return Results.Ok(await service.GetRandomByCathegory(cathegoryId, context, count));
         }
 
         public async Task<IResult> GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int page, HttpContext context)
