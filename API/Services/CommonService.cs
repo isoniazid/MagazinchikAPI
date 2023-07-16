@@ -21,5 +21,18 @@ namespace MagazinchikAPI.Services
 
             return jwtId;
         }
+
+        //returns null if not ok
+        public async Task<long?> UserIsOkNullable(HttpContext context)
+        {
+            var jwtKey = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if(jwtKey == null) return null;
+
+            var jwtId = Convert.ToInt64(jwtKey);
+            var result = await _context.Users.FindAsync(jwtId);
+
+            return result?.Id;
+        }
     }
 }

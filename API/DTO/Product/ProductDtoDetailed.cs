@@ -1,9 +1,8 @@
-using System.Text.Json.Serialization;
 using MagazinchikAPI.Model;
 
 namespace MagazinchikAPI.DTO
 {
-    public class ProductDtoBaseInfo :  IMapFrom<Product>
+    public class ProductDtoDetailed :  IMapFrom<Product>
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -12,9 +11,10 @@ namespace MagazinchikAPI.DTO
 
         public decimal Price { get; set; }
 
+        public string? Description { get; set; }
+
         public long ReviewCount { get; set; }
 
-        [JsonPropertyName("rateCount")]
         public long ReviewNoTextCount {get; set;}
 
         public float AverageRating { get; set; }
@@ -24,9 +24,5 @@ namespace MagazinchikAPI.DTO
         public CathegoryDtoBaseInfo? Cathegory {get; set;}
 
         public List<PhotoDtoProductBaseInfo>? Photos { get; set; }
-
-        public bool IsFavourite {get; set;} = false;
-
-        public bool IsInCart {get; set;} = false;
     }
 }

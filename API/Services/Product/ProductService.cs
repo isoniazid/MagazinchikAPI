@@ -32,18 +32,30 @@ namespace MagazinchikAPI.Services
             await _context.Products.AddAsync(productToSave);
             await _context.SaveChangesAsync();
         }
-        public async Task<List<ProductDtoBaseInfo>> GetAll()
+        public async Task<List<ProductDtoBaseInfo>> GetAll(HttpContext context)
         {
+            var jwtId = await _commonService.UserIsOkNullable(context);
+
             var result = new List<ProductDtoBaseInfo>();
-            var rawResult = await _context.Products.Include(x => x.Cathegory).Include(x => x.Photos).ToListAsync();
+            var rawResult = await _context.Products
+            .Include(x => x.Cathegory)
+            .Include(x => x.Photos)
+            .Include(x => x.Favourites)
+            .Include(x => x.CartProducts)
+            .ToListAsync();
+
+
             foreach (var element in rawResult)
             {
                 FindAllParents(element.Cathegory);
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
+
+            if (jwtId != null) SetFlags(result, rawResult, jwtId);
+
             return result;
         }
-        public async Task<ProductDtoBaseInfo> GetBaseInfo(long productId, HttpContext httpContext)
+        public async Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext)
         {
             var productFromDb = await _context.Products
             .Include(x => x.Cathegory)
@@ -53,28 +65,37 @@ namespace MagazinchikAPI.Services
             ?? throw new APIException("No such product", 404);
             FindAllParents(productFromDb.Cathegory);
 
-            var result = _mapper.Map<ProductDtoBaseInfo>(productFromDb);
+            var result = _mapper.Map<ProductDtoDetailed>(productFromDb);
             result.ReviewNoTextCount = productFromDb.Reviews == null ?
             0 : productFromDb.Reviews.Where(x => x.Text == null).Count();
-            
-            SaveExceptProductToCookies(httpContext, result.Id);
+
+            //SaveExceptProductToCookies(httpContext, result.Id);
 
             return result;
 
         }
-        public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset)
+        public async Task<Page<ProductDtoBaseInfo>> GetPopular(int limit, int offset, HttpContext context)
         {
+
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
             var pages = (int)Math.Ceiling((float)_context.Products.Count() / (float)limit);
             if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
 
-            var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(
+            var jwtId = await _commonService.UserIsOkNullable(context);
+
+            var rawData =
                 _context.Products
                 .Include(x => x.Photos)
+                .Include(x => x.Favourites)
+                .Include(x => x.CartProducts)
                 .OrderByDescending(x => x.Purchases)
                 .Skip(offset * limit)
-                .Take(limit));
+                .Take(limit);
+
+            var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(rawData);
+
+            if (jwtId != null) SetFlags(pageData, rawData, jwtId);
 
             return new Page<ProductDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = pageData, Pages = pages };
 
@@ -90,27 +111,35 @@ namespace MagazinchikAPI.Services
 
             var favouriteCathegoriesIds = _context.Favourites.Include(x => x.Product).Where(x => x.UserId == jwtId).Select(x => x.Product!.CathegoryId).ToList();
 
-            var result = _context.Products.Where(x => favouriteCathegoriesIds.Contains(x.CathegoryId))
+            var rawResult = _context.Products.Where(x => favouriteCathegoriesIds.Contains(x.CathegoryId))
             .Include(x => x.Photos)
             .OrderBy(x => EF.Functions.Random()).ToList()
             .ExceptBy(idsFromCookies, x => x.Id)
             .Take(limit);
 
-            return _mapper.Map<List<ProductDtoBaseInfo>>(result);
+            var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
+
+            SetFlags(result, rawResult, jwtId);
+
+            return result;
         }
-        public List<ProductDtoBaseInfo> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit)
+        public async Task<List<ProductDtoBaseInfo>> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit)
         {
 
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
 
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
+            var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
-
-            var result = _context.Products.Where(x => x.CathegoryId == cathegoryId).Include(x => x.Photos)
+            var rawResult = _context.Products.Where(x => x.CathegoryId == cathegoryId).Include(x => x.Photos)
             .OrderBy(x => EF.Functions.Random()).Take(limit).ToList().ExceptBy(idsFromCookies, x => x.Id);
 
-            return _mapper.Map<List<ProductDtoBaseInfo>>(result);
+            var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
+
+            if (jwtId != null) SetFlags(result, rawResult, jwtId);
+
+            return result;
         }
 
         public async Task AddToFavourite(long productId, HttpContext context)
@@ -150,7 +179,7 @@ namespace MagazinchikAPI.Services
             if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
         }
 
-        private static void SaveExceptProductToCookies(HttpContext context, long id)
+        /* private static void SaveExceptProductToCookies(HttpContext context, long id)
         {
             //NB а что если куки наберется больше 4 кб?
             var idsFromCookies = new List<long>();
@@ -167,7 +196,7 @@ namespace MagazinchikAPI.Services
             context.Response.Cookies.Delete("except_products");
             context.Response.Cookies.Append("except_products", JsonSerializer.Serialize(idsFromCookies),
             new CookieOptions() { Secure = true, HttpOnly = true, MaxAge = new TimeSpan(365, 0, 0, 0) });
-        }
+        } */
 
         private static IEnumerable<long> LoadExceptProductsFromCookies(HttpContext context)
         {
@@ -181,6 +210,31 @@ namespace MagazinchikAPI.Services
 
             return idsFromCookies;
         }
+
+        private static bool IsFavourite(Product product, long? userId)
+        {
+            if (product.Favourites == null || userId == null) return false;
+
+            if (product.Favourites.Where(x => x.UserId == userId).IsNullOrEmpty()) return false;
+
+            return true;
+        }
+
+        private static bool IsInCart(Product product, long? userId)
+        {
+            if (product.CartProducts == null || userId == null) return false;
+
+            if (product.CartProducts.Where(x => x.UserId == userId).IsNullOrEmpty()) return false;
+
+            return true;
+        }
+
+        private static void SetFlags(List<ProductDtoBaseInfo> inputDtos, IEnumerable<Product> inputProducts, long? userId)
+        {
+            inputDtos.ForEach(x => x.IsFavourite = IsFavourite(inputProducts.First(y => y.Id == x.Id), userId));
+            inputDtos.ForEach(x => x.IsInCart = IsInCart(inputProducts.First(y => y.Id == x.Id), userId));
+        }
+        
     }
 
 

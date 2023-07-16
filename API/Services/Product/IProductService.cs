@@ -7,18 +7,18 @@ namespace MagazinchikAPI.Services
     {
         public Task Create(ProductDtoCreate input);
 
-        public Task<List<ProductDtoBaseInfo>> GetAll();
+        public Task<List<ProductDtoBaseInfo>> GetAll(HttpContext context);
 
-        public Task<ProductDtoBaseInfo> GetBaseInfo(long productId, HttpContext httpContext);
+        public Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext);
 
         public Task AddToFavourite(long productId, HttpContext context);
 
         public Task RemoveFromFavourite(long productId, HttpContext context);
 
-        public List<ProductDtoBaseInfo> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit);
+        public Task<List<ProductDtoBaseInfo>> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit);
 
         public Task<List<ProductDtoBaseInfo>> GetRandomPersonal(HttpContext httpContext, int limit);
 
-        public Page<ProductDtoBaseInfo> GetPopular(int limit, int offset);
+        public Task<Page<ProductDtoBaseInfo>> GetPopular(int limit, int offset, HttpContext context);
     }
 }
