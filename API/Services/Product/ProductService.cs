@@ -22,7 +22,7 @@ namespace MagazinchikAPI.Services
             _mapper = mapper;
         }
         public async Task Create(ProductDtoCreate input)
-        {
+        {//NB NO VALIDATORS!!!
             var productToSave = _mapper.Map<Product>(input);
             (productToSave.UpdatedAt, productToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
 

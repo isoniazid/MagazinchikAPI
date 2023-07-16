@@ -60,6 +60,44 @@ namespace MagazinchikAPI.Services.Photo
             await _context.SaveChangesAsync();
         }
 
+        public async Task UploadBannerPhoto(long bannerId, IFormFile photoToUpload)
+        {
+            _ = await _context.Banners.FindAsync(bannerId)
+                ?? throw new APIException("No such banner", 404);
+
+            if (photoToUpload.Length > MAX_PHOTO_SIZE)
+                throw new APIException($"Photo size is too big. Mustn't be bigger than {MAX_PHOTO_SIZE / 1048576}MB", 400);
+
+            var photoFormat = Path.GetExtension(photoToUpload.FileName);
+            if (!string.Equals(photoFormat, ".jpg", StringComparison.OrdinalIgnoreCase))
+                throw new APIException("Incorrect photo format. Must be JPEG", 400);
+
+
+            var photosAmount = _context.Photos.Where(x => x.BannerId == bannerId).Count();
+
+            var photoOrder = photosAmount > 0 ? photosAmount - 1 : 0;
+
+
+            var photoToDb = new Model.Photo()
+            {
+                PhotoOrder = photoOrder,
+                FileName = Guid.NewGuid().ToString(),
+                BannerId = bannerId
+            };
+
+            await _context.Photos.AddAsync(photoToDb);
+
+            if(!Directory.Exists($"{Directory.GetCurrentDirectory()}/img/banners/{bannerId}")) 
+            Directory.CreateDirectory($"{Directory.GetCurrentDirectory()}/img/banners/{bannerId}");
+
+            string uploadPath = $"{Directory.GetCurrentDirectory()}/img/banners/{bannerId}/{photoToDb.FileName}.jpg";
+
+            using var fileStream = new FileStream(uploadPath, FileMode.Create);
+            await photoToUpload.CopyToAsync(fileStream);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task DeleteProductPhoto(long photoId)
         {
             var photoToDelete = await _context.Photos.FindAsync(photoId)

@@ -6,6 +6,8 @@ namespace MagazinchikAPI.Services.Photo
 
         public Task UploadProductPhoto(long productId, IFormFile photoToUpload);
 
+        public Task UploadBannerPhoto(long productId, IFormFile photoToUpload);
+
         public Task DeleteProductPhoto(long photoId);
 
         public Task ChangeOrder(long productId, long[] photoIds);
