@@ -59,7 +59,7 @@ namespace MagazinchikAPI.Services
             };
         }
 
-        public async Task<UserDtoRefresh> Refresh(HttpContext httpContext)
+        public async Task<UserDtoAuthSuccess> Refresh(HttpContext httpContext)
         {
             string refreshTokenFromCookies = httpContext.Request.Cookies["refresh_token"] ?? throw new APIException("Отсутствует RefreshToken в cookie", StatusCodes.Status401Unauthorized);
 
@@ -80,17 +80,12 @@ namespace MagazinchikAPI.Services
                 SaveToCookies(httpContext, currentRefreshToken);
             }
 
-           
-
-            var result = _mapper.Map<UserDtoRefresh>(currentRefreshToken.User);
-
-            result.AccessToken = BuildAccessToken(_mapper.Map<UserDtoToken>(currentRefreshToken.User));
-
+            var result = new UserDtoAuthSuccess{User = _mapper.Map<UserDtoAuthBaseInfo>(currentRefreshToken.User),
+            AccessToken = BuildAccessToken(_mapper.Map<UserDtoToken>(currentRefreshToken.User))};
             return result;
-
         }
 
-        public async Task<UserDtoLogged> Login(HttpContext httpContext, UserDtoLogin loggingUser)
+        public async Task<UserDtoAuthSuccess> Login(HttpContext httpContext, UserDtoLogin loggingUser)
         {
             var validation = _loginValidator.Validate(loggingUser);
             if (!validation.IsValid) throw new ValidatorException(validation);
@@ -109,14 +104,13 @@ namespace MagazinchikAPI.Services
 
             SaveToCookies(httpContext, refreshToken);
 
-            var result = _mapper.Map<UserDtoLogged>(existingUser);
-            result.AccessToken = accessToken;
-
+            var result = new UserDtoAuthSuccess{User = _mapper.Map<UserDtoAuthBaseInfo>(existingUser),
+            AccessToken = accessToken};
             return result;
         }
 
 
-        public async Task<UserDtoRegistered> Register(UserDtoRegistration regDto, HttpContext httpContext)
+        public async Task<UserDtoAuthSuccess> Register(UserDtoRegistration regDto, HttpContext httpContext)
         {
             var validation = _registrationValidator.Validate(regDto);
             if (!validation.IsValid) throw new ValidatorException(validation);
@@ -141,8 +135,8 @@ namespace MagazinchikAPI.Services
 
             SaveToCookies(httpContext, refreshToken);
 
-            var result = _mapper.Map<UserDtoRegistered>(userToSave);
-            result.AccessToken = accessToken;
+            var result = new UserDtoAuthSuccess{User = _mapper.Map<UserDtoAuthBaseInfo>(userToSave),
+            AccessToken = accessToken};
             return result;
         }
 

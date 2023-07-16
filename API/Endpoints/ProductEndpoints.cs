@@ -7,8 +7,8 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapGet("api/product/get_all", GetAll).WithTags("Dev")
-            .Produces<List<DTO.ProductDtoBaseInfo>>();
+            app.MapGet("api/product/get_all", GetAll).WithTags("Product")
+            .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>();
 
             app.MapPost("api/product/create", Create).WithTags("Admin")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
@@ -32,9 +32,9 @@ namespace MagazinchikAPI.Endpoints
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
         }
 
-        public async Task<IResult> GetAll(IProductService service, HttpContext context)
+        public async Task<IResult> GetAll(IProductService service, HttpContext context, [FromQuery] int limit, [FromQuery] int page)
         {
-            return Results.Ok(await service.GetAll(context));
+            return Results.Ok(await service.GetAll(limit, page, context));
         }
 
         public async Task<IResult> GetDetailedInfo(IProductService service, [FromQuery] long productId, HttpContext context)

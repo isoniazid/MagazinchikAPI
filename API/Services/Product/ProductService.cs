@@ -32,8 +32,13 @@ namespace MagazinchikAPI.Services
             await _context.Products.AddAsync(productToSave);
             await _context.SaveChangesAsync();
         }
-        public async Task<List<ProductDtoBaseInfo>> GetAll(HttpContext context)
+        public async Task<Page<ProductDtoBaseInfo>> GetAll(int limit, int offset, HttpContext context)
         {
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var pages = (int)Math.Ceiling((float)_context.Products.Count() / (float)limit);
+            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+
             var jwtId = await _commonService.UserIsOkNullable(context);
 
             var result = new List<ProductDtoBaseInfo>();
@@ -42,6 +47,8 @@ namespace MagazinchikAPI.Services
             .Include(x => x.Photos)
             .Include(x => x.Favourites)
             .Include(x => x.CartProducts)
+            .Skip(offset * limit)
+            .Take(limit)
             .ToListAsync();
 
 
@@ -53,7 +60,7 @@ namespace MagazinchikAPI.Services
 
             if (jwtId != null) SetFlags(result, rawResult, jwtId);
 
-            return result;
+            return new Page<ProductDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = result, Pages = pages };
         }
         public async Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext)
         {

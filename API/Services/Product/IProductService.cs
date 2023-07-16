@@ -7,7 +7,7 @@ namespace MagazinchikAPI.Services
     {
         public Task Create(ProductDtoCreate input);
 
-        public Task<List<ProductDtoBaseInfo>> GetAll(HttpContext context);
+        public Task<Page<ProductDtoBaseInfo>> GetAll(int limit, int offset, HttpContext context);
 
         public Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext);
 
