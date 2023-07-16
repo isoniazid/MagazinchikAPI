@@ -47,6 +47,7 @@ namespace MagazinchikAPI.Services
             .Include(x => x.Photos)
             .Include(x => x.Favourites)
             .Include(x => x.CartProducts)
+            .OrderBy(x => x.Id)
             .Skip(offset * limit)
             .Take(limit)
             .ToListAsync();
