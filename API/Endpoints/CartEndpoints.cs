@@ -1,7 +1,9 @@
+using MagazinchikAPI.DTO;
+using MagazinchikAPI.DTO.CartProduct;
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
-namespace API.Endpoints
+namespace MagazinchikAPI.Endpoints
 {
     public class CartEndpoints
     {
@@ -16,6 +18,11 @@ namespace API.Endpoints
 
             app.MapPut("api/cart/decrease", DecreaseFromCart).WithTags("Cart")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
+
+            app.MapGet("api/cart/user", GetAllForUser).WithTags("Cart")
+            .Produces<Page<CartProductDtoBaseInfo>>(200)
+            .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401)
+            .Produces<APIErrorMessage>(400);
 
         }
 
@@ -40,6 +47,12 @@ namespace API.Endpoints
         {
             await service.DecreaseFromCart(productId, context);
             return Results.Ok();
+        }
+
+        [Authorize]
+        public async Task<IResult> GetAllForUser(ICartService service, HttpContext context, [FromQuery] int limit, [FromQuery] int page)
+        {
+            return Results.Ok(await service.GetAllForUser(context, limit, page));
         }
     }
 }

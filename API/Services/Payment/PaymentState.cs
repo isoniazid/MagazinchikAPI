@@ -1,4 +1,4 @@
-namespace API.Services.Payment
+namespace MagazinchikAPI.Services.Payment
 {
     public enum PaymentState
     {

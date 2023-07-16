@@ -1,3 +1,5 @@
+using MagazinchikAPI.DTO;
+using MagazinchikAPI.DTO.Favourite;
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
@@ -25,11 +27,17 @@ namespace MagazinchikAPI.Endpoints
             app.MapGet("api/product/popular", GetPopular).WithTags("Product")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
-            app.MapPost("api/product/add-to-favourite", AddToFavourite).WithTags("Product")
+            app.MapPost("api/favourite/add", AddToFavourite).WithTags("Favourite")
             .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400).Produces(200);
 
-            app.MapDelete("api/product/remove-from-favourite", RemoveFromFavourite).WithTags("Product")
+            app.MapDelete("api/favourite/remove", RemoveFromFavourite).WithTags("Favourite")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401);
+
+            app.MapGet("api/favourite/user", GetAllFavouritesForUser).WithTags("Favourite")
+            .Produces<Page<FavouriteDtoBaseInfo>>(200)
+            .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401)
+            .Produces<APIErrorMessage>(400);
+
         }
 
         public async Task<IResult> GetAll(IProductService service, HttpContext context, [FromQuery] int limit, [FromQuery] int page)
@@ -60,6 +68,12 @@ namespace MagazinchikAPI.Endpoints
         {
             await service.RemoveFromFavourite(productId, context);
             return Results.Ok();
+        }
+
+        [Authorize]
+        public async Task<IResult> GetAllFavouritesForUser(IProductService service, HttpContext context, int limit, int page)
+        {
+            return Results.Ok(await service.GetAllFavouritesForUser(context, limit, page));
         }
 
         [Authorize]

@@ -9,6 +9,7 @@ namespace MagazinchikAPI.Infrastructure
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         { }
 
+        public DbSet<Banner> Banners => Set<Banner>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderProduct> OrderProducts => Set<OrderProduct>();
         public DbSet<Activation> Activations => Set<Activation>();

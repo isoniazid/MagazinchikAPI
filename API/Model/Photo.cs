@@ -7,5 +7,9 @@ namespace MagazinchikAPI.Model
         public long? ProductId { get; set; }
         public int PhotoOrder {get; set;}
         public Product? Product { get; set; }
+
+        public long? BannerId {get; set;}
+
+        public Banner? Banner {get; set;}
     }
 }

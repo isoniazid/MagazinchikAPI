@@ -1,4 +1,4 @@
-using API.Services.Payment;
+using MagazinchikAPI.Services.Payment;
 using MagazinchikAPI.Model;
 using Yandex.Checkout.V3;
 
@@ -58,7 +58,7 @@ namespace MagazinchikAPI.Services
                 }
             };
 
-            Payment payment = await _client.CreatePaymentAsync(currentPayment);
+            Yandex.Checkout.V3.Payment payment = await _client.CreatePaymentAsync(currentPayment);
 
             string url = payment.Confirmation.ConfirmationUrl;
 

@@ -1,8 +1,6 @@
-using MagazinchikAPI.Model;
-
 namespace MagazinchikAPI.DTO
 {
-    public class CartProductDto : IMapFrom<Product>
+    public class CartProductDto : IMapFrom<Model.Product>
     {
         public long ProductCount { get; set; }
         public long CartId { get; set; }

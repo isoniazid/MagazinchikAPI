@@ -4,11 +4,10 @@ using MagazinchikAPI.Services;
 using MagazinchikAPI.Validators;
 using FluentValidation;
 using MagazinchikAPI.Services.Photo;
-using API.Endpoints;
 using Yandex.Checkout.V3;
 using Quartz;
 using Quartz.AspNetCore;
-using API.Services.Jobs;
+using MagazinchikAPI.Services.Jobs;
 using MagazinchikAPI.Services.Address;
 
 public static class Starter

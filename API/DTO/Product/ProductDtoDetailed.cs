@@ -1,8 +1,6 @@
-using MagazinchikAPI.Model;
-
 namespace MagazinchikAPI.DTO
 {
-    public class ProductDtoDetailed :  IMapFrom<Product>
+    public class ProductDtoDetailed :  IMapFrom<Model.Product>
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;

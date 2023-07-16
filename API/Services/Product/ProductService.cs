@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FluentValidation;
 using MagazinchikAPI.DTO;
+using MagazinchikAPI.DTO.Favourite;
 using MagazinchikAPI.DTO.Review;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
@@ -180,6 +181,26 @@ namespace MagazinchikAPI.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Page<FavouriteDtoBaseInfo>> GetAllFavouritesForUser(HttpContext context, int limit, int offset)
+        {
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var jwtId = await _commonService.UserIsOk(context);
+
+            var elementsCount = _context.Favourites.Where(x => x.UserId == jwtId).Count();
+            if(elementsCount == 0) throw new APIException("Nothing found", 404);
+
+            var pages = (int)Math.Ceiling((float)elementsCount / (float)limit);
+            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+
+            var productsFromFavourites = await _context.Favourites
+            .Include(x => x.Product)
+            .ThenInclude(y => y!.Photos)
+            .Where(x => x.UserId == jwtId)
+            .ProjectTo<FavouriteDtoBaseInfo>(_mapper.ConfigurationProvider).ToListAsync();
+
+            return new Page<FavouriteDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = productsFromFavourites, Pages = pages };
+        }
         private void FindAllParents(Cathegory? cathegory)
         {
             if (cathegory == null) return;

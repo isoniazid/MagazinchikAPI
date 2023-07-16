@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
-using MagazinchikAPI.Model;
 
 namespace MagazinchikAPI.DTO
 {
-    public class ProductDtoBaseInfo :  IMapFrom<Product>
+    public class ProductDtoBaseInfo :  IMapFrom<Model.Product>
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;

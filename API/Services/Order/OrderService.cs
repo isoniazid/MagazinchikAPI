@@ -1,4 +1,4 @@
-using API.Services.Payment;
+using MagazinchikAPI.Services.Payment;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
 

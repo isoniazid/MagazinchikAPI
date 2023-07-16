@@ -1,7 +1,7 @@
 using MagazinchikAPI.Services;
 using Quartz;
 
-namespace API.Services.Jobs
+namespace MagazinchikAPI.Services.Jobs
 {
     public class PaymentChecker : IJob
     {
