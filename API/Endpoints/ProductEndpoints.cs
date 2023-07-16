@@ -19,7 +19,7 @@ namespace MagazinchikAPI.Endpoints
             app.MapGet("api/product/random-from-cathegory", GetRandomByCathegory).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>();
 
-            app.MapGet("api/product/random-personal", GetRandomPersonal).WithTags("Product")
+            app.MapGet("api/product/personal", GetRandomPersonal).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(400);
 
             app.MapGet("api/product/popular", GetPopular).WithTags("Product")
