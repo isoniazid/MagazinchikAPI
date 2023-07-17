@@ -13,6 +13,7 @@ namespace MagazinchikAPI.Model
 
         public string? Description { get; set; }
 
+        public long RateCount { get; set; }
         public long ReviewCount { get; set; }
 
         public float AverageRating { get; set; }
@@ -32,7 +33,7 @@ namespace MagazinchikAPI.Model
         public Cathegory? Cathegory { get; set; }
         public long? CathegoryId { get; set; }
 
-        public DateTime? CreatedAt {get; set;}
-        public DateTime? UpdatedAt {get; set;}
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

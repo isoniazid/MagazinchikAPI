@@ -35,7 +35,8 @@ namespace MagazinchikAPI.Services
             //Check if these things exist
             var productToReview = await _context.Products.FindAsync(input.ProductId)
             ?? throw new APIException("Product does not exist", 404);
-            productToReview.ReviewCount++;
+            if(!input.Text.IsNullOrEmpty()) productToReview.ReviewCount++;
+            productToReview.RateCount++;
 
             //Check if review was already created
             if (_context.Reviews.FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId) != null)
@@ -128,15 +129,9 @@ namespace MagazinchikAPI.Services
         {
             var product = await _context.Products.FindAsync(productId)
             ?? throw new APIException("No Such product", 404);
-            var rates = _context.Reviews.Where(x => x.ProductId == productId).Select(x => x.Rate);
+            float totalRate = _context.Reviews.Where(x => x.ProductId == productId).Select(x => x.Rate).Sum();
 
-            float totalRate = 0f;
-
-            foreach (var rate in rates)
-            {
-                totalRate += rate;
-            }
-            product.AverageRating = totalRate / product.ReviewCount;
+            product.AverageRating = totalRate / product.RateCount;
 
             product.UpdatedAt = DateTime.UtcNow;
 

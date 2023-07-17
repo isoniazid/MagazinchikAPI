@@ -1,6 +1,3 @@
-using System.Text.Json.Serialization;
-using MagazinchikAPI.Model;
-
 namespace MagazinchikAPI.DTO
 {
     public class ProductDtoCreate : IMapTo<Model.Product>

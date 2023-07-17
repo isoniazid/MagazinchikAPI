@@ -83,8 +83,6 @@ namespace MagazinchikAPI.Services
 
 
             var result = _mapper.Map<ProductDtoDetailed>(rawResult);
-            result.ReviewNoTextCount = rawResult.Reviews == null ?
-            0 : rawResult.Reviews.Where(x => x.Text == null).Count();
 
             if (jwtId != null) SetFlags(result, rawResult, jwtId);
 

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace MagazinchikAPI.DTO
 {
     public class ProductDtoBaseInfo :  IMapFrom<Model.Product>
@@ -12,9 +10,7 @@ namespace MagazinchikAPI.DTO
         public decimal Price { get; set; }
 
        // public long ReviewCount { get; set; }
-
-        [JsonPropertyName("rateCount")]
-        public long ReviewNoTextCount {get; set;}
+        public long RateCount {get; set;}
 
         public float AverageRating { get; set; }
 
