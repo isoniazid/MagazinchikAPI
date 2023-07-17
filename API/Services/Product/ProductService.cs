@@ -69,17 +69,26 @@ namespace MagazinchikAPI.Services
         }
         public async Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext)
         {
-            var productFromDb = await _context.Products
+            var jwtId = await _commonService.UserIsOkNullable(httpContext);
+
+            var rawResult = await _context.Products
             .Include(x => x.Cathegory)
             .Include(x => x.Photos)
             .Include(x => x.Reviews)
+            .Include(x => x.Favourites)
+            .Include(x => x.CartProducts)
             .FirstOrDefaultAsync(x => x.Id == productId)
             ?? throw new APIException("No such product", 404);
-            FindAllParents(productFromDb.Cathegory);
 
-            var result = _mapper.Map<ProductDtoDetailed>(productFromDb);
-            result.ReviewNoTextCount = productFromDb.Reviews == null ?
-            0 : productFromDb.Reviews.Where(x => x.Text == null).Count();
+            FindAllParents(rawResult.Cathegory);
+
+            
+
+            var result = _mapper.Map<ProductDtoDetailed>(rawResult);
+            result.ReviewNoTextCount = rawResult.Reviews == null ?
+            0 : rawResult.Reviews.Where(x => x.Text == null).Count();
+
+            if (jwtId != null) SetFlags(result, rawResult, jwtId);
 
             //SaveExceptProductToCookies(httpContext, result.Id);
 
@@ -269,7 +278,11 @@ namespace MagazinchikAPI.Services
             inputDtos.ForEach(x => x.IsFavourite = IsFavourite(inputProducts.First(y => y.Id == x.Id), userId));
             inputDtos.ForEach(x => x.IsInCart = IsInCart(inputProducts.First(y => y.Id == x.Id), userId));
         }
-        
+         private static void SetFlags(ProductDtoDetailed inputDto, Product inputProduct, long? userId)
+        {
+            inputDto.IsFavourite = IsFavourite(inputProduct, userId);
+            inputDto.IsInCart= IsInCart(inputProduct, userId);
+        }
     }
 
 

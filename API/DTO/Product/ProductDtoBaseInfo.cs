@@ -11,7 +11,7 @@ namespace MagazinchikAPI.DTO
 
         public decimal Price { get; set; }
 
-        public long ReviewCount { get; set; }
+       // public long ReviewCount { get; set; }
 
         [JsonPropertyName("rateCount")]
         public long ReviewNoTextCount {get; set;}
@@ -20,7 +20,7 @@ namespace MagazinchikAPI.DTO
 
         public long Purchases { get; set; }
 
-        public CathegoryDtoBaseInfo? Cathegory {get; set;}
+        //public CathegoryDtoBaseInfo? Cathegory {get; set;}
 
         public List<PhotoDtoProductBaseInfo>? Photos { get; set; }
 
