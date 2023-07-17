@@ -8,6 +8,8 @@ namespace MagazinchikAPI.Validators
         public BannerDtoCreateValidator()
         {
             RuleFor(x => x.Name).NotEmpty().NotNull().MaximumLength(255).MinimumLength(2);
+
+            RuleFor(x => x.IsActive).NotEmpty().NotNull();
         }
     }
 }

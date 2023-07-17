@@ -29,9 +29,23 @@ namespace MagazinchikAPI.Services.Banner
 
             var bannerToSave = _mapper.Map<Model.Banner>(input);
 
+            if(bannerToSave.IsActive)
+            {
+                var otherBanners = await _context.Banners.ToListAsync();
+                otherBanners.ForEach( x => x.IsActive = false);
+            }
+
             await _context.Banners.AddAsync(bannerToSave);
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<BannerDtoBaseInfo> GetActiveBanner()
+        {
+            var result = await _context.Banners.Include(x => x.Photos).FirstOrDefaultAsync(x => x.IsActive)
+            ?? throw new APIException("No active banners found", 404);
+
+            return _mapper.Map<BannerDtoBaseInfo>(result);
         }
     }
 }
