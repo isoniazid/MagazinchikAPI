@@ -10,6 +10,8 @@ namespace MagazinchikAPI.Services
 
         public Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext);
 
+        public Task<List<ProductDtoBaseInfo>> GetRandom(HttpContext context, int limit);
+
         public Task<List<ProductDtoBaseInfo>> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit);
 
         public Task<List<ProductDtoBaseInfo>> GetRandomPersonal(HttpContext httpContext, int limit);

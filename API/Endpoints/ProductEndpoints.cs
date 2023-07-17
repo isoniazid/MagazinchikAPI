@@ -1,5 +1,3 @@
-using MagazinchikAPI.DTO;
-using MagazinchikAPI.DTO.Favourite;
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
@@ -17,6 +15,9 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapGet("api/product/detail", GetDetailedInfo).WithTags("Product")
             .Produces<DTO.ProductDtoBaseInfo>().Produces<APIErrorMessage>(404);
+
+            app.MapGet("api/product/random", GetRandom).WithTags("Product")
+            .Produces<List<DTO.ProductDtoBaseInfo>>();
 
             app.MapGet("api/product/random-from-cathegory", GetRandomByCathegory).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>();
@@ -49,6 +50,11 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> GetRandomPersonal(IProductService service, [FromQuery] int count, HttpContext context)
         {
             return Results.Ok(await service.GetRandomPersonal(context, count));
+        }
+
+        public async Task<IResult> GetRandom(IProductService service, [FromQuery] int count, HttpContext context)
+        {
+            return Results.Ok(await service.GetRandom(context, count));
         }
 
         public async Task<IResult> GetRandomByCathegory(IProductService service, [FromQuery] long cathegoryId, [FromQuery] int count, HttpContext context)
