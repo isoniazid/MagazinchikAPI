@@ -131,7 +131,10 @@ namespace MagazinchikAPI.Services
             var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
 
-            var rawResult = _context.Products.Include(x => x.Photos)
+            var rawResult = _context.Products
+            .Include(x => x.Photos)
+            .Include(x => x.Favourites)
+            .Include(x => x.CartProducts)
             .OrderBy(x => EF.Functions.Random()).ToList().ExceptBy(idsFromCookies, x => x.Id).Take(limit);
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
@@ -152,6 +155,8 @@ namespace MagazinchikAPI.Services
 
             var rawResult = _context.Products.Where(x => favouriteCathegoriesIds.Contains(x.CathegoryId))
             .Include(x => x.Photos)
+            .Include(x => x.Favourites)
+            .Include(x => x.CartProducts)
             .OrderBy(x => EF.Functions.Random()).ToList()
             .ExceptBy(idsFromCookies, x => x.Id)
             .Take(limit);
@@ -171,7 +176,10 @@ namespace MagazinchikAPI.Services
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
             var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
-            var rawResult = _context.Products.Where(x => x.CathegoryId == cathegoryId).Include(x => x.Photos)
+            var rawResult = _context.Products.Where(x => x.CathegoryId == cathegoryId)
+            .Include(x => x.Photos)
+            .Include(x => x.Favourites)
+            .Include(x => x.CartProducts)
             .OrderBy(x => EF.Functions.Random()).ToList().ExceptBy(idsFromCookies, x => x.Id).Take(limit);
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);

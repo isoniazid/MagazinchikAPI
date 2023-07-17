@@ -25,7 +25,6 @@ namespace MagazinchikAPI.Services
         public async Task<long?> UserIsOkNullable(HttpContext context)
         {
             var jwtKey = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
             if(jwtKey == null) return null;
 
             var jwtId = Convert.ToInt64(jwtKey);
