@@ -65,12 +65,20 @@ namespace MagazinchikAPI.Services.Photo
             _ = await _context.Banners.FindAsync(bannerId)
                 ?? throw new APIException("No such banner", 404);
 
+                
             if (photoToUpload.Length > MAX_PHOTO_SIZE)
                 throw new APIException($"Photo size is too big. Mustn't be bigger than {MAX_PHOTO_SIZE / 1048576}MB", 400);
 
             var photoFormat = Path.GetExtension(photoToUpload.FileName);
             if (!string.Equals(photoFormat, ".jpg", StringComparison.OrdinalIgnoreCase))
                 throw new APIException("Incorrect photo format. Must be JPEG", 400);
+
+            //NB Platform-dependent: for windows only
+            /* using( var image = Image.FromStream(photoToUpload.OpenReadStream()))
+            {
+                var aspectRatio = (float)image.Width/(float)image.Height;
+                if(aspectRatio > 2.1 || aspectRatio < 1.9) throw new APIException("Invalid aspect ratio: Must be close to 2:1", 400);
+            } */
 
 
             var photosAmount = _context.Photos.Where(x => x.BannerId == bannerId).Count();
@@ -99,11 +107,22 @@ namespace MagazinchikAPI.Services.Photo
         }
 
         public async Task DeleteProductPhoto(long photoId)
-        {
+        { //NB no rearrange after deleting
             var photoToDelete = await _context.Photos.FindAsync(photoId)
             ?? throw new APIException("Nothing to delete", 404);
 
             File.Delete($"{Directory.GetCurrentDirectory()}/img/{photoToDelete.ProductId}/{photoToDelete.FileName}.jpg");
+            _context.Remove(photoToDelete);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteBannerPhoto(long photoId)
+        { //NB no rearrange after deleting
+            var photoToDelete = await _context.Photos.FindAsync(photoId)
+            ?? throw new APIException("Nothing to delete", 404);
+
+            File.Delete($"{Directory.GetCurrentDirectory()}/img/banners/{photoToDelete.BannerId}/{photoToDelete.FileName}.jpg");
             _context.Remove(photoToDelete);
 
             await _context.SaveChangesAsync();

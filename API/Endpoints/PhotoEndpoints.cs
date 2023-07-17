@@ -16,10 +16,13 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("api/photo/banner/upload", UploadBannerPhoto).WithTags("Photo")
             .Produces(200).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
 
-            app.MapDelete("api/photo/delete", DeletePhoto).WithTags("Photo")
+            app.MapDelete("api/photo/banner/delete", DeleteBannerPhoto).WithTags("Photo")
             .Produces(200).Produces<APIErrorMessage>(404);
 
-            app.MapPut("api/photo/change-order", ChangeOrder).WithTags("Photo")
+            app.MapDelete("api/photo/product/delete", DeleteProductPhoto).WithTags("Photo")
+            .Produces(200).Produces<APIErrorMessage>(404);
+
+            app.MapPut("api/photo/product/change-order", ChangeOrder).WithTags("Photo")
              .Produces(200).Produces<APIErrorMessage>(400);
         }
 
@@ -41,9 +44,16 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok();
         }
 
-        public async Task<IResult> DeletePhoto(IPhotoService service, [FromQuery] long photoId)
+        public async Task<IResult> DeleteProductPhoto(IPhotoService service, [FromQuery] long photoId)
         {
             await service.DeleteProductPhoto(photoId);
+            return Results.Ok();
+        }
+
+        
+        public async Task<IResult> DeleteBannerPhoto(IPhotoService service, [FromQuery] long photoId)
+        {
+            await service.DeleteBannerPhoto(photoId);
             return Results.Ok();
         }
 
