@@ -130,8 +130,9 @@ namespace MagazinchikAPI.Services
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
             var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
-            var rawResult = _context.Products.Include(x => x.Photos).ExceptBy(idsFromCookies, x => x.Id)
-            .OrderBy(x => EF.Functions.Random()).Take(limit).ToList();
+
+            var rawResult = _context.Products.Include(x => x.Photos)
+            .OrderBy(x => EF.Functions.Random()).ToList().ExceptBy(idsFromCookies, x => x.Id).Take(limit);
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
@@ -171,7 +172,7 @@ namespace MagazinchikAPI.Services
             var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
             var rawResult = _context.Products.Where(x => x.CathegoryId == cathegoryId).Include(x => x.Photos)
-            .OrderBy(x => EF.Functions.Random()).ExceptBy(idsFromCookies, x => x.Id).Take(limit).ToList();
+            .OrderBy(x => EF.Functions.Random()).ToList().ExceptBy(idsFromCookies, x => x.Id).Take(limit);
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
