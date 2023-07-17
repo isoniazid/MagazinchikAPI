@@ -79,10 +79,9 @@ namespace MagazinchikAPI.Services
             var jwtId = await _commonService.UserIsOk(context);
 
             var elementsCount = _context.CartProducts.Where(x => x.UserId == jwtId).Count();
-            if(elementsCount == 0) throw new APIException("Nothing found", 404);
 
-            var pages = (int)Math.Ceiling((float)elementsCount / (float)limit);
-            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var productsFromCart = await _context.CartProducts
             .Include(x => x.Product)
@@ -90,8 +89,9 @@ namespace MagazinchikAPI.Services
             .Where(x => x.UserId == jwtId)
             .ProjectTo<CartProductDtoBaseInfo>(_mapper.ConfigurationProvider).ToListAsync();
 
-            return new Page<CartProductDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = productsFromCart, Pages = pages };
+            return new Page<CartProductDtoBaseInfo>()
+            { CurrentOffset = offset, CurrentPage = productsFromCart, Pages = pages, ElementsCount = elementsCount };
         }
-    
+
     }
 }

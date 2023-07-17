@@ -83,8 +83,10 @@ namespace MagazinchikAPI.Services
         {
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
-            var pages = (int)Math.Ceiling((float)_context.Reviews.Where(x => x.ProductId == productId).Count() / (float)limit);
-            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+            var elementsCount = _context.Reviews.Where(x => x.ProductId == productId).Count();
+
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var pageData = _mapper.Map<List<ReviewDtoBaseInfo>>(
                 _context.Reviews.Include(x => x.User)
@@ -93,7 +95,7 @@ namespace MagazinchikAPI.Services
                 .Skip(offset * limit)
                 .Take(limit));
 
-            return new Page<ReviewDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = pageData, Pages = pages };
+            return new Page<ReviewDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount};
         }
 
         public ReviewDtoRateList GetProductRateList(long productId)

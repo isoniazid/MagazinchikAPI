@@ -9,12 +9,26 @@ namespace MagazinchikAPI.DTO
         [JsonIgnore]
         public int CurrentOffset { get; set; }
 
-        private List<T> _currentPage = new();
 
         [JsonPropertyName("rows")]
-        public List<T> CurrentPage { get => _currentPage; set => (_currentPage, ElementsCount) = (value, value.Count); }
+        public List<T> CurrentPage { get; set;} = new();
 
         [JsonPropertyName("count")]
         public int ElementsCount { get; set; }
+    }
+
+    public class Page //For static methods
+    {
+        public static int CalculatePagesAmount(int totalCount, int limit)
+        {
+            if(totalCount == 0) throw new APIException("No elements to create page", 404);
+            return (int)Math.Ceiling((float)totalCount / (float)limit);
+        }
+
+        public static bool OffsetIsOk(int offset, int pages)
+        {
+            if (offset > pages - 1 || offset < 0) return false;
+            return true;
+        }
     }
 }

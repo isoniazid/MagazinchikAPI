@@ -37,8 +37,10 @@ namespace MagazinchikAPI.Services
         {
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
-            var pages = (int)Math.Ceiling((float)_context.Products.Count() / (float)limit);
-            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+            var elementsCount = _context.Products.Count();
+
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var jwtId = await _commonService.UserIsOkNullable(context);
 
@@ -62,7 +64,8 @@ namespace MagazinchikAPI.Services
 
             if (jwtId != null) SetFlags(result, rawResult, jwtId);
 
-            return new Page<ProductDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = result, Pages = pages };
+            return new Page<ProductDtoBaseInfo>() 
+            { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount};
         }
         public async Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext)
         {
@@ -88,8 +91,10 @@ namespace MagazinchikAPI.Services
 
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
-            var pages = (int)Math.Ceiling((float)_context.Products.Count() / (float)limit);
-            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+            var elementsCount = _context.Products.Count();
+
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var jwtId = await _commonService.UserIsOkNullable(context);
 
@@ -106,7 +111,8 @@ namespace MagazinchikAPI.Services
 
             if (jwtId != null) SetFlags(pageData, rawData, jwtId);
 
-            return new Page<ProductDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = pageData, Pages = pages };
+            return new Page<ProductDtoBaseInfo>() 
+            { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount};
 
 
         }
@@ -188,10 +194,9 @@ namespace MagazinchikAPI.Services
             var jwtId = await _commonService.UserIsOk(context);
 
             var elementsCount = _context.Favourites.Where(x => x.UserId == jwtId).Count();
-            if(elementsCount == 0) throw new APIException("Nothing found", 404);
 
-            var pages = (int)Math.Ceiling((float)elementsCount / (float)limit);
-            if (offset > pages - 1 || offset < 0) throw new APIException($"Invalid offset: {offset}", 400);
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var productsFromFavourites = await _context.Favourites
             .Include(x => x.Product)
@@ -199,7 +204,8 @@ namespace MagazinchikAPI.Services
             .Where(x => x.UserId == jwtId)
             .ProjectTo<FavouriteDtoBaseInfo>(_mapper.ConfigurationProvider).ToListAsync();
 
-            return new Page<FavouriteDtoBaseInfo>() { CurrentOffset = offset, CurrentPage = productsFromFavourites, Pages = pages };
+            return new Page<FavouriteDtoBaseInfo>() 
+            { CurrentOffset = offset, CurrentPage = productsFromFavourites, Pages = pages, ElementsCount = elementsCount};
         }
         private void FindAllParents(Cathegory? cathegory)
         {
