@@ -16,7 +16,13 @@ namespace MagazinchikAPI.Services.Photo
             var photoToGet = await _context.Photos.FindAsync(id)
             ?? throw new APIException("Photo doesn't exist", 404);
 
-            var path = $"{Directory.GetCurrentDirectory()}/img/{photoToGet.ProductId}/{photoToGet.FileName}.jpg";
+
+            //NB need to put in outer method
+            string folder;
+            if(photoToGet.ProductId == null) folder = $"Banners/{photoToGet.BannerId}";
+            else folder = $"{photoToGet.ProductId}";
+
+            var path = $"{Directory.GetCurrentDirectory()}/img/{folder}/{photoToGet.FileName}.jpg";
 
             return path;
 
