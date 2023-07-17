@@ -1,6 +1,4 @@
 using MagazinchikAPI.DTO;
-using MagazinchikAPI.DTO.Favourite;
-using MagazinchikAPI.DTO.Review;
 
 namespace MagazinchikAPI.Services
 {
@@ -11,12 +9,6 @@ namespace MagazinchikAPI.Services
         public Task<Page<ProductDtoBaseInfo>> GetAll(int limit, int offset, HttpContext context);
 
         public Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext);
-
-        public Task AddToFavourite(long productId, HttpContext context);
-
-        public Task RemoveFromFavourite(long productId, HttpContext context);
-
-        public Task<Page<FavouriteDtoBaseInfo>> GetAllFavouritesForUser(HttpContext context, int limit, int offset);
 
         public Task<List<ProductDtoBaseInfo>> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit);
 

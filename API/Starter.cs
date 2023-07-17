@@ -10,6 +10,7 @@ using Quartz.AspNetCore;
 using MagazinchikAPI.Services.Jobs;
 using MagazinchikAPI.Services.Address;
 using MagazinchikAPI.Services.Banner;
+using MagazinchikAPI.Services.Favourite;
 
 public static class Starter
 {
@@ -100,6 +101,7 @@ public static class Starter
         builder.Services.AddScoped<IOrderService, OrderService>();
         builder.Services.AddScoped<IAddressService, AddressService>();
         builder.Services.AddScoped<IBannerService, BannerService>();
+        builder.Services.AddScoped<IFavouriteService, FavouriteService>();
 
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -118,6 +120,7 @@ public static class Starter
         new OrderEndpoints().Define(app);
         new AddressEndpoints().Define(app);
         new BannerEndpoints().Define(app);
+        new FavouriteEndpoints().Define(app);
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("Endpoints registered");

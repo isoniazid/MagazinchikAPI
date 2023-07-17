@@ -1,8 +1,6 @@
 using System.Text.Json;
 using FluentValidation;
 using MagazinchikAPI.DTO;
-using MagazinchikAPI.DTO.Favourite;
-using MagazinchikAPI.DTO.Review;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
 
@@ -64,8 +62,8 @@ namespace MagazinchikAPI.Services
 
             if (jwtId != null) SetFlags(result, rawResult, jwtId);
 
-            return new Page<ProductDtoBaseInfo>() 
-            { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount};
+            return new Page<ProductDtoBaseInfo>()
+            { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount };
         }
         public async Task<ProductDtoDetailed> GetDetailedInfo(long productId, HttpContext httpContext)
         {
@@ -82,7 +80,7 @@ namespace MagazinchikAPI.Services
 
             FindAllParents(rawResult.Cathegory);
 
-            
+
 
             var result = _mapper.Map<ProductDtoDetailed>(rawResult);
             result.ReviewNoTextCount = rawResult.Reviews == null ?
@@ -120,8 +118,8 @@ namespace MagazinchikAPI.Services
 
             if (jwtId != null) SetFlags(pageData, rawData, jwtId);
 
-            return new Page<ProductDtoBaseInfo>() 
-            { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount};
+            return new Page<ProductDtoBaseInfo>()
+            { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount };
 
 
         }
@@ -164,57 +162,6 @@ namespace MagazinchikAPI.Services
             if (jwtId != null) SetFlags(result, rawResult, jwtId);
 
             return result;
-        }
-
-        public async Task AddToFavourite(long productId, HttpContext context)
-        {
-
-            var jwtId = await _commonService.UserIsOk(context);
-
-
-            if (_context.Favourites.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId) != null)
-                throw new APIException("Already added to favourites", 400);
-
-            _ = await _context.Products.FindAsync(productId)
-            ?? throw new APIException("Product does not exist", 404);
-
-
-            var FavouriteToSave = new Favourite { ProductId = productId, UserId = jwtId };
-
-            await _context.Favourites.AddAsync(FavouriteToSave);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task RemoveFromFavourite(long productId, HttpContext context)
-        {
-            var jwtId = await _commonService.UserIsOk(context);
-
-            var favouriteToRemove = _context.Favourites.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId)
-            ?? throw new APIException("Nothing to remove", 404);
-
-            _context.Favourites.Remove(favouriteToRemove);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<Page<FavouriteDtoBaseInfo>> GetAllFavouritesForUser(HttpContext context, int limit, int offset)
-        {
-            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
-
-            var jwtId = await _commonService.UserIsOk(context);
-
-            var elementsCount = _context.Favourites.Where(x => x.UserId == jwtId).Count();
-
-            var pages = Page.CalculatePagesAmount(elementsCount, limit);
-            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
-
-            var productsFromFavourites = await _context.Favourites
-            .Include(x => x.Product)
-            .ThenInclude(y => y!.Photos)
-            .Where(x => x.UserId == jwtId)
-            .ProjectTo<FavouriteDtoBaseInfo>(_mapper.ConfigurationProvider).ToListAsync();
-
-            return new Page<FavouriteDtoBaseInfo>() 
-            { CurrentOffset = offset, CurrentPage = productsFromFavourites, Pages = pages, ElementsCount = elementsCount};
         }
         private void FindAllParents(Cathegory? cathegory)
         {
@@ -278,10 +225,10 @@ namespace MagazinchikAPI.Services
             inputDtos.ForEach(x => x.IsFavourite = IsFavourite(inputProducts.First(y => y.Id == x.Id), userId));
             inputDtos.ForEach(x => x.IsInCart = IsInCart(inputProducts.First(y => y.Id == x.Id), userId));
         }
-         private static void SetFlags(ProductDtoDetailed inputDto, Product inputProduct, long? userId)
+        private static void SetFlags(ProductDtoDetailed inputDto, Product inputProduct, long? userId)
         {
             inputDto.IsFavourite = IsFavourite(inputProduct, userId);
-            inputDto.IsInCart= IsInCart(inputProduct, userId);
+            inputDto.IsInCart = IsInCart(inputProduct, userId);
         }
     }
 
