@@ -67,6 +67,8 @@ namespace MagazinchikAPI.Services
             var reviewToUpdate = _context.Reviews.Include(x => x.Product).FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId)
             ?? throw new APIException("Can't find review to update", StatusCodes.Status404NotFound);
 
+            if(reviewToUpdate.Text.IsNullOrEmpty() && !input.Text.IsNullOrEmpty()) reviewToUpdate.Product!.ReviewCount++;
+
             //reviewToUpdate.UpdateTime();
             reviewToUpdate.UpdatedAt = DateTime.UtcNow;
             reviewToUpdate.Rate = input.Rate;
