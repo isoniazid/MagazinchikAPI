@@ -162,6 +162,7 @@ public static class Starter
             builder.WithOrigins("http://localhost:3000");
             builder.AllowCredentials();
             builder.AllowAnyHeader();
+            builder.AllowAnyMethod();
         });
 
         LoadConfigs(app);
