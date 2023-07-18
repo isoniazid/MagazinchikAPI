@@ -22,6 +22,6 @@ namespace MagazinchikAPI.DTO.Product
 
         public bool IsFavourite {get; set;} = false;
 
-        public bool IsInCart {get; set;} = false;
+        public bool IsInCart {get; set;} = true;
     }
 }

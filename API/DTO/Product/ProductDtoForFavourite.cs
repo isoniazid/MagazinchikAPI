@@ -13,8 +13,8 @@ namespace MagazinchikAPI.DTO.Product
 
         public List<PhotoDtoProductBaseInfo>? Photos { get; set; }
 
-        /* public bool IsFavourite {get; set;} = false;
+        public bool IsFavourite {get; set;} = true;
 
-        public bool IsInCart {get; set;} = false; */
+        public bool IsInCart {get; set;} = false;
     }
 }

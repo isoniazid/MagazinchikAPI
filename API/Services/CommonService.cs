@@ -26,13 +26,19 @@ namespace MagazinchikAPI.Services
         //returns null if not ok
         public async Task<long?> UserIsOkNullable(HttpContext context)
         {
-            var jwtKey = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(jwtKey == null) return null;
+            //if there's no token at all, return null
+            var HeaderJwtKey= context.Request.Headers.Authorization;
+            if(HeaderJwtKey.IsNullOrEmpty()) return null;
+
+            //if there's some token, but it is invalid => 401
+            var jwtKey = context.User.FindFirstValue(ClaimTypes.NameIdentifier) 
+            ?? throw new APIException("Token is not null, but not valid. Try refresh", 401);
 
             var jwtId = Convert.ToInt64(jwtKey);
-            var result = await _context.Users.FindAsync(jwtId);
+            var result = await _context.Users.FindAsync(jwtId)
+            ?? throw new APIException("Undefined user", 401);
 
-            return result?.Id;
+            return result.Id;
         }
 
          private static bool IsFavourite(Product product, long? userId)
