@@ -19,9 +19,9 @@ namespace MagazinchikAPI.DTO
 
     public class Page //For static methods
     {
+        
         public static int CalculatePagesAmount(int totalCount, int limit)
         {
-            if(totalCount == 0) throw new APIException("No elements to create page", 404);
             return (int)Math.Ceiling((float)totalCount / (float)limit);
         }
 

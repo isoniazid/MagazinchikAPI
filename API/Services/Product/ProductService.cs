@@ -38,6 +38,7 @@ namespace MagazinchikAPI.Services
             var elementsCount = _context.Products.Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (pages <= 0) return new Page<ProductDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var jwtId = await _commonService.UserIsOkNullable(context);
@@ -60,7 +61,7 @@ namespace MagazinchikAPI.Services
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
 
-            if (jwtId != null) SetFlags(result, rawResult, jwtId);
+            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
 
             return new Page<ProductDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount };
@@ -84,7 +85,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<ProductDtoDetailed>(rawResult);
 
-            if (jwtId != null) SetFlags(result, rawResult, jwtId);
+            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
 
             //SaveExceptProductToCookies(httpContext, result.Id);
 
@@ -99,6 +100,7 @@ namespace MagazinchikAPI.Services
             var elementsCount = _context.Products.Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (pages <= 0) return new Page<ProductDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var jwtId = await _commonService.UserIsOkNullable(context);
@@ -114,7 +116,7 @@ namespace MagazinchikAPI.Services
 
             var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(rawData);
 
-            if (jwtId != null) SetFlags(pageData, rawData, jwtId);
+            if (jwtId != null) CommonService.SetFlags(pageData, rawData, jwtId);
 
             return new Page<ProductDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount };
@@ -139,7 +141,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
-            if (jwtId != null) SetFlags(result, rawResult, jwtId);
+            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
 
             return result;
         }
@@ -163,7 +165,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
-            SetFlags(result, rawResult, jwtId);
+            CommonService.SetFlags(result, rawResult, jwtId);
 
             return result;
         }
@@ -184,7 +186,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
-            if (jwtId != null) SetFlags(result, rawResult, jwtId);
+            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
 
             return result;
         }
@@ -227,34 +229,7 @@ namespace MagazinchikAPI.Services
             return idsFromCookies;
         }
 
-        private static bool IsFavourite(Product product, long? userId)
-        {
-            if (product.Favourites == null || userId == null) return false;
 
-            if (product.Favourites.Where(x => x.UserId == userId).IsNullOrEmpty()) return false;
-
-            return true;
-        }
-
-        private static bool IsInCart(Product product, long? userId)
-        {
-            if (product.CartProducts == null || userId == null) return false;
-
-            if (product.CartProducts.Where(x => x.UserId == userId).IsNullOrEmpty()) return false;
-
-            return true;
-        }
-
-        private static void SetFlags(List<ProductDtoBaseInfo> inputDtos, IEnumerable<Product> inputProducts, long? userId)
-        {
-            inputDtos.ForEach(x => x.IsFavourite = IsFavourite(inputProducts.First(y => y.Id == x.Id), userId));
-            inputDtos.ForEach(x => x.IsInCart = IsInCart(inputProducts.First(y => y.Id == x.Id), userId));
-        }
-        private static void SetFlags(ProductDtoDetailed inputDto, Product inputProduct, long? userId)
-        {
-            inputDto.IsFavourite = IsFavourite(inputProduct, userId);
-            inputDto.IsInCart = IsInCart(inputProduct, userId);
-        }
     }
 
 

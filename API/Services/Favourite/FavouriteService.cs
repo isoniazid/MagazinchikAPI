@@ -57,6 +57,7 @@ namespace MagazinchikAPI.Services.Favourite
             var elementsCount = _context.Favourites.Where(x => x.UserId == jwtId).Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if(pages <= 0) return new Page<FavouriteDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var productsFromFavourites = await _context.Favourites

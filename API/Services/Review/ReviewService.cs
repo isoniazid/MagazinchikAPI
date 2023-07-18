@@ -89,6 +89,7 @@ namespace MagazinchikAPI.Services
             var elementsCount = _context.Reviews.Where(x => x.ProductId == productId).Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if(pages <= 0) return new Page<ReviewDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var pageData = _mapper.Map<List<ReviewDtoBaseInfo>>(

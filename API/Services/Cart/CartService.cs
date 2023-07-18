@@ -81,6 +81,7 @@ namespace MagazinchikAPI.Services
             var elementsCount = _context.CartProducts.Where(x => x.UserId == jwtId).Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if(pages <= 0) return new Page<CartProductDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var productsFromCart = await _context.CartProducts
