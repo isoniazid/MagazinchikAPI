@@ -41,7 +41,7 @@ namespace MagazinchikAPI.Services
             return result.Id;
         }
 
-         private static bool IsFavourite(Product product, long? userId)
+         public static bool IsFavourite(Product product, long? userId)
         {
             if (product.Favourites == null || userId == null) return false;
 
@@ -50,7 +50,7 @@ namespace MagazinchikAPI.Services
             return true;
         }
 
-        private static bool IsInCart(Product product, long? userId)
+        public static bool IsInCart(Product product, long? userId)
         {
             if (product.CartProducts == null || userId == null) return false;
 

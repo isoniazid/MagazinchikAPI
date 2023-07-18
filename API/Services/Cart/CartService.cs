@@ -84,14 +84,24 @@ namespace MagazinchikAPI.Services
             if(pages <= 0) return new Page<CartProductDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
-            var productsFromCart = await _context.CartProducts
+            var cartProducts = await _context.CartProducts
             .Include(x => x.Product)
-            .ThenInclude(y => y!.Photos)
+            .Include(x => x.Product!.Favourites)
+            .Include(x => x.Product!.Photos)
             .Where(x => x.UserId == jwtId)
-            .ProjectTo<CartProductDtoBaseInfo>(_mapper.ConfigurationProvider).ToListAsync();
+            .OrderByDescending(x => x.Id)
+            .Skip(offset * limit)
+            .Take(limit).ToListAsync();
+
+            var products = cartProducts.Select(x => x.Product);
+
+            var result = _mapper.Map<List<CartProductDtoBaseInfo>>(cartProducts);
+
+            //setting favourite flags
+            result.ForEach( x => x.Product!.IsFavourite = CommonService.IsFavourite(products.First(y => y!.Id == x.Product.Id)!, jwtId));
 
             return new Page<CartProductDtoBaseInfo>()
-            { CurrentOffset = offset, CurrentPage = productsFromCart, Pages = pages, ElementsCount = elementsCount };
+            { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount };
         }
 
     }
