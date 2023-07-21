@@ -163,7 +163,7 @@ namespace MagazinchikAPI.Services
             return url;
         }
 
-        public async Task CreateOrder(HttpContext context, long addressId)
+        public async Task<long> CreateOrder(HttpContext context, long addressId)
         {
             var jwtId = await _commonService.UserIsOk(context);
 
@@ -193,6 +193,8 @@ namespace MagazinchikAPI.Services
             await _context.SaveChangesAsync();
 
             await ClearCart(jwtId);
+
+            return orderToSave.Id;
         }
 
         private async Task<List<OrderProduct>> CreateOrderProducts(long userId, Order order)

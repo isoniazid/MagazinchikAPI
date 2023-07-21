@@ -5,7 +5,7 @@ namespace MagazinchikAPI.Services
 {
     public interface IOrderService
     {
-        public Task CreateOrder(HttpContext context, long addressId);
+        public Task<long> CreateOrder(HttpContext context, long addressId);
 
         public Task<string> PayForOrder(long orderId, HttpContext context);
 

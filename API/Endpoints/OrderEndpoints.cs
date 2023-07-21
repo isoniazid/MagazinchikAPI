@@ -9,7 +9,9 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapPost("/api/order/create", CreateOrder).WithTags("Order");
+            app.MapPost("/api/order/create", CreateOrder).WithTags("Order")
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
+            .Produces<long>(200);
 
             app.MapPost("api/order/pay", PayForOrder).WithTags("Order")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
@@ -32,8 +34,8 @@ namespace MagazinchikAPI.Endpoints
 
         public async Task<IResult> CreateOrder(IOrderService service, HttpContext httpContext, [FromQuery] long addressId)
         {
-            await service.CreateOrder(httpContext, addressId);
-            return Results.Ok();
+            
+            return Results.Ok(await service.CreateOrder(httpContext, addressId));
         }
 
         [Authorize]
