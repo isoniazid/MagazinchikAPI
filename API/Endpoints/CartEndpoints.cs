@@ -24,6 +24,11 @@ namespace MagazinchikAPI.Endpoints
             .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401)
             .Produces<APIErrorMessage>(400);
 
+            app.MapPatch("api/cart/set", SetCertainAmount).WithTags("Cart")
+            .Produces(200)
+            .Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(401)
+            .Produces<APIErrorMessage>(400);
+
         }
 
 
@@ -53,6 +58,13 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> GetAllForUser(ICartService service, HttpContext context, [FromQuery] int limit, [FromQuery] int page)
         {
             return Results.Ok(await service.GetAllForUser(context, limit, page));
+        }
+
+        [Authorize]
+        public async Task<IResult> SetCertainAmount(ICartService service, HttpContext context, [FromQuery] long productId, [FromQuery] long count)
+        {
+            await service.SetToCertainAmount(productId, count, context);
+            return Results.Ok();
         }
     }
 }

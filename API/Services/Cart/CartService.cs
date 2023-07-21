@@ -17,6 +17,20 @@ namespace MagazinchikAPI.Services
             _commonService = commonService;
         }
 
+        public async Task SetToCertainAmount(long productId, long newAmount, HttpContext context)
+        {
+            if (newAmount <= 0) throw new APIException("invalid amount", 400);
+
+            var jwtId = await _commonService.UserIsOk(context);
+
+            var cartProductToSet = await _context.CartProducts.FirstOrDefaultAsync(x => x.ProductId == productId && x.UserId == jwtId)
+            ?? throw new APIException("no such product in cart", 404);
+
+            cartProductToSet.ProductCount = newAmount;
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task AddToCart(long productId, HttpContext context)
         {
             var jwtId = await _commonService.UserIsOk(context);

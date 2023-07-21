@@ -7,11 +7,13 @@ namespace MagazinchikAPI.Services
     {
         public Task AddToCart(long productId, HttpContext context);
 
-         public Task RemoveFromCart(long productId, HttpContext context);
+        public Task RemoveFromCart(long productId, HttpContext context);
 
-         public Task DecreaseFromCart(long productId, HttpContext context);
+        public Task DecreaseFromCart(long productId, HttpContext context);
 
-         public Task<Page<CartProductDtoBaseInfo>> GetAllForUser(HttpContext context, int limit, int offset);
+        public Task<Page<CartProductDtoBaseInfo>> GetAllForUser(HttpContext context, int limit, int offset);
+
+        public Task SetToCertainAmount(long productId, long newAmount, HttpContext context);
 
     }
 }
