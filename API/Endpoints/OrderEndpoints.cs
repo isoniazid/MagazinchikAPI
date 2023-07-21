@@ -9,9 +9,9 @@ namespace MagazinchikAPI.Endpoints
     {
         public void Define(WebApplication app)
         {
-            app.MapPost("/api/order/create", CreateOrder).WithTags("Dev/Order");
+            app.MapPost("/api/order/create", CreateOrder).WithTags("Order");
 
-            app.MapPost("api/order/pay", PayForOrder).WithTags("Dev/Order")
+            app.MapPost("api/order/pay", PayForOrder).WithTags("Order")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
             .Produces<APIErrorMessage>(400).Produces(200);
 
