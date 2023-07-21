@@ -1,3 +1,4 @@
+using MagazinchikAPI.DTO;
 using MagazinchikAPI.DTO.Order;
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
@@ -21,6 +22,10 @@ namespace MagazinchikAPI.Endpoints
             app.MapGet("api/order", GetById).WithTags("Order")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
             .Produces<OrderDtoBaseInfo>(200);
+
+            app.MapGet("api/order/user", GetAllForUser).WithTags("Order")
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
+            .Produces<Page<OrderDtoBaseInfo>>(200).Produces<APIErrorMessage>(400);
 
 
         }
@@ -48,6 +53,12 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> GetById(IOrderService service, HttpContext context, long orderId)
         {
             return Results.Ok(await service.GetById(context, orderId));
+        }
+
+        [Authorize]
+        public async Task<IResult> GetAllForUser(IOrderService service,HttpContext context, int limit, int page)
+        {
+            return Results.Ok(await service.GetAllForUser(context, limit, page));
         }
     }
 }

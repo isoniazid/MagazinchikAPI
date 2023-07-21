@@ -2,11 +2,13 @@ using MagazinchikAPI.Services.Payment;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
 using MagazinchikAPI.DTO.Order;
+using MagazinchikAPI.DTO;
 
 namespace MagazinchikAPI.Services
 {
     public class OrderService : IOrderService
     {
+        private const int LIMIT_SIZE = 50;
         private readonly ApplicationDbContext _context;
         private readonly CommonService _commonService;
         private readonly IPaymentService _paymentService;
@@ -19,6 +21,33 @@ namespace MagazinchikAPI.Services
             _mapper = mapper;
         }
 
+        public async Task<Page<OrderDtoBaseInfo>> GetAllForUser(HttpContext context, int limit, int offset)
+        {
+             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var jwtId = await _commonService.UserIsOk(context);
+
+            var elementsCount = _context.Orders.Where(x => x.UserId == jwtId).Count();
+
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if(pages <= 0) return new Page<OrderDtoBaseInfo>();
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
+
+            var orders = await _context.Orders
+            .Include(x => x.Address)
+            .Include(x => x.OrderProducts!)
+            .ThenInclude(y => y.Product)
+            .ThenInclude(z => z!.Photos)
+            .Where(x => x.UserId == jwtId)
+            .OrderByDescending(x => x.Id)
+            .Skip(offset * limit)
+            .Take(limit)
+            .ProjectTo<OrderDtoBaseInfo>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+
+             return new Page<OrderDtoBaseInfo>()
+            { CurrentOffset = offset, CurrentPage = orders, Pages = pages, ElementsCount = elementsCount };
+        }
 
         public async Task<OrderDtoBaseInfo> GetById(HttpContext context, long orderId)
         {
@@ -205,5 +234,6 @@ namespace MagazinchikAPI.Services
 
             return productCount * product.Price;
         }
+
     }
 }
