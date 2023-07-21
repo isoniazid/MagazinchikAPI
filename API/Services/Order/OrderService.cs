@@ -1,6 +1,7 @@
 using MagazinchikAPI.Services.Payment;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
+using MagazinchikAPI.DTO.Order;
 
 namespace MagazinchikAPI.Services
 {
@@ -9,13 +10,32 @@ namespace MagazinchikAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly CommonService _commonService;
         private readonly IPaymentService _paymentService;
-        public OrderService(ApplicationDbContext context, CommonService commonService, IPaymentService paymentService)
+        private readonly IMapper _mapper;
+        public OrderService(ApplicationDbContext context, CommonService commonService, IPaymentService paymentService, IMapper mapper)
         {
             _paymentService = paymentService;
             _commonService = commonService;
             _context = context;
+            _mapper = mapper;
         }
 
+
+        public async Task<OrderDtoBaseInfo> GetById(HttpContext context, long orderId)
+        {
+            var jwtId = await _commonService.UserIsOk(context);
+
+            var result = await _context.Orders
+            .Include(x => x.Address)
+            .Include(x => x.OrderProducts!)
+            .ThenInclude(y => y.Product)
+            .ThenInclude(z => z!.Photos)
+            .Where(x => x.UserId == jwtId)
+            .ProjectTo<OrderDtoBaseInfo>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(x => x.Id == orderId)
+            ?? throw new APIException("order for authorized user not found", 404);
+
+            return result;
+        }
 
         public async Task CheckPaymentsForOrders()//For Quartz
         {

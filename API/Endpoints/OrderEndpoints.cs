@@ -1,3 +1,4 @@
+using MagazinchikAPI.DTO.Order;
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
 using MagazinchikAPI.Services;
 
@@ -16,6 +17,12 @@ namespace MagazinchikAPI.Endpoints
             //Get потому что на нее будет редирект
             app.MapGet("api/order/check-payment", CheckPayments).WithTags("Dev/Order")
             .Produces<APIErrorMessage>(401).Produces(200);
+
+            app.MapGet("api/order", GetById).WithTags("Order")
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
+            .Produces<OrderDtoBaseInfo>(200);
+
+
         }
 
         public async Task<IResult> CreateOrder(IOrderService service, HttpContext httpContext, [FromQuery] long addressId)
@@ -35,6 +42,12 @@ namespace MagazinchikAPI.Endpoints
         {
             await service.CheckPaymentForOrders(context);
             return Results.Ok();
+        }
+
+        [Authorize]
+        public async Task<IResult> GetById(IOrderService service, HttpContext context, long orderId)
+        {
+            return Results.Ok(await service.GetById(context, orderId));
         }
     }
 }
