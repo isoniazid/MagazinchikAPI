@@ -74,7 +74,7 @@ namespace MagazinchikAPI.Services.Favourite
             var result = _mapper.Map<List<FavouriteDtoBaseInfo>>(favourites);
 
             //setting cart flags
-            result.ForEach( x => x.Product!.IsInCart = CommonService.IsInCart(products.First(y => y!.Id == x.Product.Id)!, jwtId));
+            result.ForEach(x => x.Product!.SetCart(products.FirstOrDefault(y => x.Product!.Id == y!.Id)!, jwtId));
 
             return new Page<FavouriteDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount };

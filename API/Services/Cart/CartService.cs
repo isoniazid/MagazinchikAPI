@@ -81,7 +81,7 @@ namespace MagazinchikAPI.Services
             var elementsCount = _context.CartProducts.Where(x => x.UserId == jwtId).Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
-            if(pages <= 0) return new Page<CartProductDtoBaseInfo>();
+            if (pages <= 0) return new Page<CartProductDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var cartProducts = await _context.CartProducts
@@ -98,7 +98,7 @@ namespace MagazinchikAPI.Services
             var result = _mapper.Map<List<CartProductDtoBaseInfo>>(cartProducts);
 
             //setting favourite flags
-            result.ForEach( x => x.Product!.IsFavourite = CommonService.IsFavourite(products.First(y => y!.Id == x.Product.Id)!, jwtId));
+            result.ForEach(x => x.Product!.SetFavourite(products.FirstOrDefault(y => x.Product!.Id == y!.Id)!, jwtId));
 
             return new Page<CartProductDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount };
