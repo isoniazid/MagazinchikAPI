@@ -21,7 +21,7 @@ class Program
         .WithoutWarmUp()
         .WithLoadSimulations(
             Simulation.Inject(rate: 1000, interval: TimeSpan.FromSeconds(1),
-            during: TimeSpan.FromSeconds(30))
+            during: TimeSpan.FromSeconds(10))
         );
 
         NBomberRunner.RegisterScenarios(scenario).Run();
