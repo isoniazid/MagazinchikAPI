@@ -18,7 +18,7 @@ namespace MagazinchikAPI.Services.Jobs
             Console.ResetColor(); */
 
             using var scope = _serviceScopeFactory.CreateScope();
-            IOrderService service = scope.ServiceProvider.GetService<IOrderService>() ?? throw new Exception("Shit!");
+            IOrderService service = scope.ServiceProvider.GetService<IOrderService>() ?? throw new Exception("something wrong!");
 
             await service.CheckPaymentsForOrders();
 
