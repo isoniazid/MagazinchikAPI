@@ -7,7 +7,7 @@ namespace MagazinchikAPI.Services
     {
         public Task<long> CreateOrder(HttpContext context, long addressId);
 
-        public Task<string> PayForOrder(long orderId, HttpContext context);
+        public Task<OrderPaymentDto> PayForOrder(long orderId, HttpContext context);
 
         public Task CheckPaymentsForOrders();
 

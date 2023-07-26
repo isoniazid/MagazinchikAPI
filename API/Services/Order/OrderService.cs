@@ -139,7 +139,7 @@ namespace MagazinchikAPI.Services
             Console.ResetColor();
         }
 
-        public async Task<string> PayForOrder(long orderId, HttpContext context)
+        public async Task<OrderPaymentDto> PayForOrder(long orderId, HttpContext context)
         {
             var jwtId = await _commonService.UserIsOk(context);
 
@@ -160,7 +160,7 @@ namespace MagazinchikAPI.Services
 
             await _context.SaveChangesAsync();
 
-            return url;
+            return new OrderPaymentDto{Url = url, OrderId = orderToPay.Id};
         }
 
         public async Task<long> CreateOrder(HttpContext context, long addressId)

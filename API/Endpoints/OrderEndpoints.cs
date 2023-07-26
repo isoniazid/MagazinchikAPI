@@ -15,7 +15,7 @@ namespace MagazinchikAPI.Endpoints
 
             app.MapPost("api/order/pay", PayForOrder).WithTags("Order")
             .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
-            .Produces<APIErrorMessage>(400).Produces(200);
+            .Produces<APIErrorMessage>(400).Produces<OrderPaymentDto>(200);
 
             //Get потому что на нее будет редирект
             app.MapGet("api/order/check-payment", CheckPayments).WithTags("Dev/Order")
