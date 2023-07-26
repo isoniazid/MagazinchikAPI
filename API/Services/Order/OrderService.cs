@@ -68,7 +68,10 @@ namespace MagazinchikAPI.Services
 
         public async Task CheckPaymentsForOrders()//For Quartz
         {
-            var ordersToCheck = await _context.Orders.Where(x => x.OrderStatus == OrderStatus.AWAITING && x.PaymentId != null).ToListAsync();
+            var ordersToCheck = await _context.Orders
+            .Where(x => x.OrderStatus == OrderStatus.AWAITING && x.PaymentId != null)
+            .Include(x => x.OrderProducts)
+            .ToListAsync();
 
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine($"Checking payment states for {ordersToCheck.Count} orders...");
@@ -93,7 +96,9 @@ namespace MagazinchikAPI.Services
 
             var ordersToCheck = await _context.Orders.Where(x => x.OrderStatus == OrderStatus.AWAITING
              && x.PaymentId != null
-             && x.UserId == jwtId).ToListAsync();
+             && x.UserId == jwtId)
+             .Include(x => x.OrderProducts)
+             .ToListAsync();
 
             for (int i = 0; i < ordersToCheck.Count; ++i)
             {
@@ -120,6 +125,7 @@ namespace MagazinchikAPI.Services
                 case PaymentState.PAID:
                     order.OrderStatus = OrderStatus.PROCESSING;
                     order.UpdatedAt = DateTime.UtcNow;
+                    await IncreasePurchases(order);
                     break;
 
                 case PaymentState.CANCELLED:
@@ -235,6 +241,17 @@ namespace MagazinchikAPI.Services
                 ?? throw new APIException("no such product", 404);
 
             return productCount * product.Price;
+        }
+
+        private async Task IncreasePurchases(Order order)
+        {
+            foreach(var element in order.OrderProducts!)
+            {
+                var amount = element.ProductCount;
+                var product = await _context.Products.FindAsync(element.ProductId);
+                product!.Purchases+=amount;
+                await _context.SaveChangesAsync();
+            }
         }
 
     }
