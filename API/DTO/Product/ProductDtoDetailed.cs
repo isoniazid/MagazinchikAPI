@@ -26,5 +26,27 @@ namespace MagazinchikAPI.DTO
         public bool IsFavourite {get; set;} = false;
 
         public bool IsInCart {get; set;} = false;
+
+
+        public void SetFlags(Model.Product product, long userId)
+        {
+            SetCart(product, userId);
+            SetFavourite(product, userId);
+        }
+
+        public void SetCart(Model.Product product, long userId)
+        {
+            if (product.CartProducts == null) throw new Exception("Must be list");
+            if (!product.CartProducts.Where(x => x.UserId == userId).IsNullOrEmpty())
+                IsInCart = true;
+        }
+
+        public void SetFavourite(Model.Product product, long userId)
+        {
+            if (product.Favourites == null) throw new Exception("Must be empty list or null");
+
+            if (!product.Favourites.Where(x => x.UserId == userId).IsNullOrEmpty())
+                IsFavourite = true;
+        }
     }
 }

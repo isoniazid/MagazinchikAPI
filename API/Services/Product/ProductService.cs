@@ -85,8 +85,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<ProductDtoDetailed>(rawResult);
 
-            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
-
+            if(jwtId != null) result.SetFlags(rawResult, (long)jwtId);
             //SaveExceptProductToCookies(httpContext, result.Id);
 
             return result;
