@@ -61,7 +61,7 @@ namespace MagazinchikAPI.Services
 
         public async Task<UserDtoAuthSuccess> Refresh(HttpContext httpContext)
         {
-            string refreshTokenFromCookies = httpContext.Request.Cookies["refresh_token"] ?? throw new APIException("Отсутствует RefreshToken в cookie", StatusCodes.Status401Unauthorized);
+            string refreshTokenFromCookies = httpContext.Request.Cookies["refresh_token"] ?? throw new APIException("No RefreshToken in cookie", StatusCodes.Status401Unauthorized);
 
             var currentRefreshToken = await _context.RefreshTokens.Include(p => p.User)
             .FirstOrDefaultAsync(x => x.Value == refreshTokenFromCookies)

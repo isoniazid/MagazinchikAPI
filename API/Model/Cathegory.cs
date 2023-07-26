@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace MagazinchikAPI.Model
 {
     public class Cathegory
@@ -10,5 +12,8 @@ namespace MagazinchikAPI.Model
         public long? ParentId { get; set; }
 
         public Cathegory? Parent { get; set; }
+
+        [NotMapped]
+        public List<Cathegory>? Descendants {get; set;}
     }
 }

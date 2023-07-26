@@ -1,5 +1,6 @@
 using FluentValidation;
 using MagazinchikAPI.DTO;
+using MagazinchikAPI.DTO.Cathegory;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
 
@@ -66,6 +67,44 @@ namespace MagazinchikAPI.Services
             }
 
             return _mapper.Map<List<CathegoryDtoBaseInfo>>(result);
+        }
+
+        public async Task<List<CathegoryDtoDescendants>> GetAll()
+        {
+            var rawResult = await _context.Cathegories.Where(x => x.ParentId == null).ToListAsync();
+
+            foreach(var element in rawResult) await FindAllDescendants(element);
+
+            return _mapper.Map<List<CathegoryDtoDescendants>>(rawResult);
+        }
+
+        public async Task<CathegoryDtoDescendants> GetById(long cathegoryId)
+        {
+            var cathegory = await _context.Cathegories.Include(x => x.Parent).FirstOrDefaultAsync(x => x.Id == cathegoryId)
+            ?? throw new APIException("Invalid cathegory", 404);
+
+            if(!cathegory.IsParent) throw new APIException("This is the youngest category", 400);
+
+            await FindAllDescendants(cathegory);
+
+            return _mapper.Map<CathegoryDtoDescendants>(cathegory);
+        }
+
+
+
+        private async Task FindAllDescendants(Cathegory cathegory)
+        {
+            var descendants = await _context.Cathegories.Where(x => x.ParentId == cathegory.Id).ToListAsync();
+
+            if (descendants.IsNullOrEmpty()) return;
+
+            cathegory.Descendants = descendants;
+
+            foreach (var descendant in descendants)
+            {
+                await FindAllDescendants(descendant);
+            }
+
         }
 
         private void FindAllParents(Cathegory cathegory)

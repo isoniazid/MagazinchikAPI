@@ -1,8 +1,6 @@
-using MagazinchikAPI.Model;
-
 namespace MagazinchikAPI.DTO
 {
-    public class CathegoryDtoCreate :IMapTo<Cathegory>
+    public class CathegoryDtoCreate :IMapTo<Model.Cathegory>
     {
         public string Name { get; set; } = string.Empty;
 
