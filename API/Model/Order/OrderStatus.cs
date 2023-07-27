@@ -6,6 +6,7 @@ namespace MagazinchikAPI.Model
         PROCESSING,
         SENT,
         ACCEPTED,
-        CANCELLED
+        CANCELLED,
+        CAPTURED
     }
 }

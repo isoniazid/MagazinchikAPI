@@ -23,14 +23,14 @@ namespace MagazinchikAPI.Services
 
         public async Task<Page<OrderDtoBaseInfo>> GetAllForUser(HttpContext context, int limit, int offset)
         {
-             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
             var jwtId = await _commonService.UserIsOk(context);
 
             var elementsCount = _context.Orders.Where(x => x.UserId == jwtId).Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
-            if(pages <= 0) return new Page<OrderDtoBaseInfo>();
+            if (pages <= 0) return new Page<OrderDtoBaseInfo>();
             if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
 
             var orders = await _context.Orders
@@ -45,7 +45,7 @@ namespace MagazinchikAPI.Services
             .ProjectTo<OrderDtoBaseInfo>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
-             return new Page<OrderDtoBaseInfo>()
+            return new Page<OrderDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = orders, Pages = pages, ElementsCount = elementsCount };
         }
 
@@ -69,7 +69,7 @@ namespace MagazinchikAPI.Services
         public async Task CheckPaymentsForOrders()//For Quartz
         {
             var ordersToCheck = await _context.Orders
-            .Where(x => x.OrderStatus == OrderStatus.AWAITING && x.PaymentId != null)
+            .Where(x => (x.OrderStatus == OrderStatus.AWAITING || x.OrderStatus == OrderStatus.CAPTURED) && x.PaymentId != null)
             .Include(x => x.OrderProducts)
             .ToListAsync();
 
@@ -94,7 +94,8 @@ namespace MagazinchikAPI.Services
             var jwtId = await _commonService.UserIsOk(context);
 
 
-            var ordersToCheck = await _context.Orders.Where(x => x.OrderStatus == OrderStatus.AWAITING
+            var ordersToCheck = await _context.Orders.Where(
+            x => (x.OrderStatus == OrderStatus.AWAITING || x.OrderStatus == OrderStatus.CAPTURED)
              && x.PaymentId != null
              && x.UserId == jwtId)
              .Include(x => x.OrderProducts)
@@ -120,6 +121,8 @@ namespace MagazinchikAPI.Services
 
                 case PaymentState.READY_TO_CAPTURE:
                     await _paymentService.CapturePayment(order.PaymentId);
+                    order.OrderStatus = OrderStatus.CAPTURED;
+                    order.UpdatedAt = DateTime.UtcNow;
                     break;
 
                 case PaymentState.PAID:
@@ -163,10 +166,11 @@ namespace MagazinchikAPI.Services
             var (url, paymentId) = await _paymentService.InitiatePayment(orderToPay);
 
             orderToPay.PaymentId = paymentId;
+            orderToPay.Url = url;
 
             await _context.SaveChangesAsync();
 
-            return new OrderPaymentDto{Url = url, OrderId = orderToPay.Id};
+            return new OrderPaymentDto { Url = url, OrderId = orderToPay.Id };
         }
 
         public async Task<long> CreateOrder(HttpContext context, long addressId)
@@ -245,11 +249,11 @@ namespace MagazinchikAPI.Services
 
         private async Task IncreasePurchases(Order order)
         {
-            foreach(var element in order.OrderProducts!)
+            foreach (var element in order.OrderProducts!)
             {
                 var amount = element.ProductCount;
                 var product = await _context.Products.FindAsync(element.ProductId);
-                product!.Purchases+=amount;
+                product!.Purchases += amount;
                 await _context.SaveChangesAsync();
             }
         }

@@ -12,5 +12,6 @@ namespace MagazinchikAPI.DTO.Order
         public DateTime? CreatedAt {get; set;}
         public DateTime? UpdatedAt {get; set;}
         public string? PaymentId {get; set;}
+        public string? Url {get; set;}
     }
 }
