@@ -54,7 +54,7 @@ namespace MagazinchikAPI.Services
                 {
                     Type = ConfirmationType.Redirect,
                     //Url указывает на эндпоинт, по которому подтверждается оплата в магазине
-                    ReturnUrl = "http://localhost:3000"
+                    ReturnUrl = $"http://localhost:3000/orders/{order.Id}"
                 }
             };
 
