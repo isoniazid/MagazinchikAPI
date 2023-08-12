@@ -191,6 +191,40 @@ namespace MagazinchikAPI.Services
 
             return result;
         }
+
+        public async Task<Page<ProductDtoBaseInfo>> GetByCathegory(long cathegoryId ,int limit, int offset, HttpContext context)
+        {
+
+            if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
+
+            var elementsCount = _context.Products.Where(x => x.CathegoryId == cathegoryId).Count();
+
+            var pages = Page.CalculatePagesAmount(elementsCount, limit);
+            if (pages <= 0) return new Page<ProductDtoBaseInfo>();
+            if (!Page.OffsetIsOk(offset, pages)) throw new APIException($"Invalid offset: {offset}", 400);
+
+            var jwtId = await _commonService.UserIsOkNullable(context);
+
+            var rawData =
+                _context.Products
+                .Where(x => x.CathegoryId == cathegoryId)
+                .Include(x => x.Photos)
+                .Include(x => x.Favourites)
+                .Include(x => x.CartProducts)
+                .OrderByDescending(x => x.Purchases)
+                .Skip(offset * limit)
+                .Take(limit);
+
+            var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(rawData);
+
+            if (jwtId != null) CommonService.SetFlags(pageData, rawData, jwtId);
+
+            return new Page<ProductDtoBaseInfo>()
+            { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount };
+
+
+        }
+
         private void FindAllParents(Cathegory? cathegory)
         {
             if (cathegory == null) return;

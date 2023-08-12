@@ -19,7 +19,12 @@ namespace MagazinchikAPI.Endpoints
             .Produces<CathegoryDtoCreated>(200)
             .Produces<APIErrorMessage>(400);
 
-            app.MapGet("api/cathegory", GetById).WithTags("Cathegory")
+            app.MapGet("api/cathegory/descendants", GetByIdDescendants).WithTags("Cathegory")
+            .Produces<CathegoryDtoDescendants>(200)
+            .Produces<APIErrorMessage>(404)
+            .Produces<APIErrorMessage>(400);
+
+            app.MapGet("api/cathegory/parents", GetByIdParents).WithTags("Cathegory")
             .Produces<CathegoryDtoDescendants>(200)
             .Produces<APIErrorMessage>(404)
             .Produces<APIErrorMessage>(400);
@@ -38,9 +43,14 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(service.GetRandomCathegories(count));
         }
 
-        public async Task<IResult> GetById(ICathegoryService service, [FromQuery] long cathegoryId)
+        public async Task<IResult> GetByIdDescendants(ICathegoryService service, [FromQuery] long cathegoryId)
         {
-            return Results.Ok(await service.GetById(cathegoryId));
+            return Results.Ok(await service.GetByIdDescendants(cathegoryId));
+        }
+
+        public async Task<IResult> GetByIdParents(ICathegoryService service, [FromQuery] long cathegoryId)
+        {
+            return Results.Ok(await service.GetByIdParents(cathegoryId));
         }
 
         public async Task<IResult> GetAll(ICathegoryService service)

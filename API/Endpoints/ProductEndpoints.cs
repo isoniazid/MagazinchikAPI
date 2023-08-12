@@ -28,6 +28,9 @@ namespace MagazinchikAPI.Endpoints
             app.MapGet("api/product/popular", GetPopular).WithTags("Product")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
+            app.MapGet("api/product/cathegory", GetByCathegory).WithTags("Product")
+            .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
+
         }
 
         public async Task<IResult> GetAll(IProductService service, HttpContext context, [FromQuery] int limit, [FromQuery] int page)
@@ -65,6 +68,11 @@ namespace MagazinchikAPI.Endpoints
         public async Task<IResult> GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int page, HttpContext context)
         {
             return Results.Ok(await service.GetPopular(limit, page, context));
+        }
+
+        public async Task<IResult> GetByCathegory(IProductService service, [FromQuery] int limit, [FromQuery] int page, [FromQuery] long cathegoryId, HttpContext context)
+        {
+            return Results.Ok(await service.GetByCathegory(cathegoryId, limit, page, context));
         }
 
     }

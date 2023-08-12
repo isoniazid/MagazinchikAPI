@@ -78,16 +78,26 @@ namespace MagazinchikAPI.Services
             return _mapper.Map<List<CathegoryDtoDescendants>>(rawResult);
         }
 
-        public async Task<CathegoryDtoDescendants> GetById(long cathegoryId)
+        public async Task<CathegoryDtoDescendants> GetByIdDescendants(long cathegoryId)
         {
             var cathegory = await _context.Cathegories.Include(x => x.Parent).FirstOrDefaultAsync(x => x.Id == cathegoryId)
             ?? throw new APIException("Invalid cathegory", 404);
 
-            if(!cathegory.IsParent) throw new APIException("This is the youngest category", 400);
+            //if(!cathegory.IsParent) throw new APIException("This is the youngest category", 400);
 
             await FindAllDescendants(cathegory);
 
             return _mapper.Map<CathegoryDtoDescendants>(cathegory);
+        }
+
+        public async Task<CathegoryDtoBaseInfo> GetByIdParents(long cathegoryId)
+        {
+            var rawResult = await _context.Cathegories.FindAsync(cathegoryId)
+            ?? throw new APIException("No such category", 404);
+
+            FindAllParents(rawResult);
+
+            return _mapper.Map<CathegoryDtoBaseInfo>(rawResult);
         }
 
 

@@ -9,7 +9,9 @@ namespace MagazinchikAPI.Services
 
         public List<CathegoryDtoBaseInfo> GetRandomCathegories(int count);
 
-        public Task<CathegoryDtoDescendants> GetById(long cathegoryId);
+        public Task<CathegoryDtoDescendants> GetByIdDescendants(long cathegoryId);
+
+        public Task<CathegoryDtoBaseInfo> GetByIdParents(long cathegoryId);
 
         public Task<List<CathegoryDtoDescendants>> GetAll();
     }
