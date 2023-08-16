@@ -2,7 +2,8 @@ namespace MagazinchikAPI.DTO.User
 {
     public class UserDtoLogin
     {
-        public string Email { get; set; } = string.Empty;
+        private string _email = String.Empty;
+        public string Email { get => _email; set => _email = value.ToLower(); }
         public string Password { get; set;} =string.Empty;
 
 
