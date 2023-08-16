@@ -81,7 +81,7 @@ public static class Starter
 
     public static void RegisterEndpoints(WebApplication app)
     {
-        new CathegoryEndpoints().Define(app);
+        new CategoryEndpoints().Define(app);
         new ProductEndpoints().Define(app);
         new AuthEndpoints().Define(app);
         new PhotoEndpoints().Define(app);
@@ -133,7 +133,7 @@ public static class Starter
     {
         builder.Services.AddValidatorsFromAssemblyContaining<UserDtoRegistrationValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<UserDtoLoginValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<CathegoryDtoCreateValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<CategoryDtoCreateValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ReviewDtoCreateValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ReviewDtoUpdateValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<AddressDtoCreateValidator>();
@@ -148,7 +148,7 @@ public static class Starter
         builder.Services.AddSingleton(new Yandex.Checkout.V3.Client(shopId: SHOP_ID, secretKey: SHOP_SECRET_KEY).MakeAsync());
         builder.Services.AddSingleton<IPaymentService, PaymentService>();
         builder.Services.AddScoped<CommonService>();
-        builder.Services.AddScoped<ICathegoryService, CathegoryService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IPhotoService, PhotoService>();

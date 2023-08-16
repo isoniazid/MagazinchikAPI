@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MagazinchikAPI.Model
 {
-    public class Cathegory
+    public class Category
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -11,9 +11,9 @@ namespace MagazinchikAPI.Model
 
         public long? ParentId { get; set; }
 
-        public Cathegory? Parent { get; set; }
+        public Category? Parent { get; set; }
 
         [NotMapped]
-        public List<Cathegory>? Descendants {get; set;}
+        public List<Category>? Descendants {get; set;}
     }
 }

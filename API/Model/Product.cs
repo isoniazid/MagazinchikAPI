@@ -30,8 +30,8 @@ namespace MagazinchikAPI.Model
 
         public long Purchases { get; set; }
 
-        public Cathegory? Cathegory { get; set; }
-        public long? CathegoryId { get; set; }
+        public Category? Category { get; set; }
+        public long? CategoryId { get; set; }
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

@@ -29,7 +29,7 @@ namespace MagazinchikAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cathegories",
+                name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -40,11 +40,11 @@ namespace MagazinchikAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cathegories", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Cathegories_Cathegories_ParentId",
+                        name: "FK_Categories_Categories_ParentId",
                         column: x => x.ParentId,
-                        principalTable: "Cathegories",
+                        principalTable: "Categories",
                         principalColumn: "Id");
                 });
 
@@ -79,7 +79,7 @@ namespace MagazinchikAPI.Migrations
                     ReviewCount = table.Column<long>(type: "bigint", nullable: false),
                     AverageRating = table.Column<float>(type: "real", nullable: false),
                     Purchases = table.Column<long>(type: "bigint", nullable: false),
-                    CathegoryId = table.Column<long>(type: "bigint", nullable: true),
+                    CategoryId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -87,9 +87,9 @@ namespace MagazinchikAPI.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_Cathegories_CathegoryId",
-                        column: x => x.CathegoryId,
-                        principalTable: "Cathegories",
+                        name: "FK_Products_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id");
                 });
 
@@ -303,8 +303,8 @@ namespace MagazinchikAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cathegories_ParentId",
-                table: "Cathegories",
+                name: "IX_Categories_ParentId",
+                table: "Categories",
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
@@ -338,9 +338,9 @@ namespace MagazinchikAPI.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_CathegoryId",
+                name: "IX_Products_CategoryId",
                 table: "Products",
-                column: "CathegoryId");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserId",
@@ -395,7 +395,7 @@ namespace MagazinchikAPI.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Cathegories");
+                name: "Categories");
         }
     }
 }

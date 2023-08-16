@@ -14,7 +14,7 @@ namespace MagazinchikAPI.Infrastructure
         public DbSet<OrderProduct> OrderProducts => Set<OrderProduct>();
         public DbSet<Activation> Activations => Set<Activation>();
         public DbSet<CartProduct> CartProducts => Set<CartProduct>();
-        public DbSet<Cathegory> Cathegories => Set<Cathegory>();
+        public DbSet<Category> Categories => Set<Category>();
         public DbSet<Favourite> Favourites => Set<Favourite>();
         public DbSet<Photo> Photos => Set<Photo>();
         public DbSet<Address> Addresses => Set<Address>();

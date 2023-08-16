@@ -27,9 +27,9 @@ namespace MagazinchikAPI.Services
             var productToSave = _mapper.Map<Product>(input);
             (productToSave.UpdatedAt, productToSave.CreatedAt) = (DateTime.UtcNow, DateTime.UtcNow);
 
-            var cathegory = _context.Cathegories.Find(productToSave.CathegoryId)
-            ?? throw new APIException("Invalid cathegory", 404);
-            if (cathegory.IsParent) throw new APIException("Invalid cathegory", 400);
+            var category = _context.Categories.Find(productToSave.CategoryId)
+            ?? throw new APIException("Invalid category", 404);
+            if (category.IsParent) throw new APIException("Invalid category", 400);
 
             await _context.Products.AddAsync(productToSave);
             await _context.SaveChangesAsync();
@@ -48,7 +48,7 @@ namespace MagazinchikAPI.Services
 
             var result = new List<ProductDtoBaseInfo>();
             var rawResult = await _context.Products
-            .Include(x => x.Cathegory)
+            .Include(x => x.Category)
             .Include(x => x.Photos)
             .Include(x => x.Favourites)
             .Include(x => x.CartProducts)
@@ -60,7 +60,7 @@ namespace MagazinchikAPI.Services
 
             foreach (var element in rawResult)
             {
-                FindAllParents(element.Cathegory);
+                FindAllParents(element.Category);
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
 
@@ -74,7 +74,7 @@ namespace MagazinchikAPI.Services
             var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
             var rawResult = await _context.Products
-            .Include(x => x.Cathegory)
+            .Include(x => x.Category)
             .Include(x => x.Photos)
             .Include(x => x.Reviews)
             .Include(x => x.Favourites)
@@ -82,7 +82,7 @@ namespace MagazinchikAPI.Services
             .FirstOrDefaultAsync(x => x.Id == productId)
             ?? throw new APIException("No such product", 404);
 
-            FindAllParents(rawResult.Cathegory);
+            FindAllParents(rawResult.Category);
 
 
 
@@ -155,9 +155,9 @@ namespace MagazinchikAPI.Services
 
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
 
-            var favouriteCathegoriesIds = _context.Favourites.Include(x => x.Product).Where(x => x.UserId == jwtId).Select(x => x.Product!.CathegoryId).ToList();
+            var favouriteCategoriesIds = _context.Favourites.Include(x => x.Product).Where(x => x.UserId == jwtId).Select(x => x.Product!.CategoryId).ToList();
 
-            var rawResult = _context.Products.Where(x => favouriteCathegoriesIds.Contains(x.CathegoryId))
+            var rawResult = _context.Products.Where(x => favouriteCategoriesIds.Contains(x.CategoryId))
             .Include(x => x.Photos)
             .Include(x => x.Favourites)
             .Include(x => x.CartProducts)
@@ -171,7 +171,7 @@ namespace MagazinchikAPI.Services
 
             return result;
         }
-        public async Task<List<ProductDtoBaseInfo>> GetRandomByCathegory(long cathegoryId, HttpContext httpContext, int limit)
+        public async Task<List<ProductDtoBaseInfo>> GetRandomByCategory(long categoryId, HttpContext httpContext, int limit)
         {
 
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
@@ -180,7 +180,7 @@ namespace MagazinchikAPI.Services
             var idsFromCookies = LoadExceptProductsFromCookies(httpContext);
             var jwtId = await _commonService.UserIsOkNullable(httpContext);
 
-            var rawResult = _context.Products.Where(x => x.CathegoryId == cathegoryId)
+            var rawResult = _context.Products.Where(x => x.CategoryId == categoryId)
             .Include(x => x.Photos)
             .Include(x => x.Favourites)
             .Include(x => x.CartProducts)
@@ -195,12 +195,12 @@ namespace MagazinchikAPI.Services
             return result;
         }
 
-        public async Task<Page<ProductDtoBaseInfo>> GetByCathegory(long cathegoryId ,int limit, int offset, HttpContext context)
+        public async Task<Page<ProductDtoBaseInfo>> GetByCategory(long categoryId ,int limit, int offset, HttpContext context)
         {
 
             if (limit > LIMIT_SIZE) throw new APIException($"Too big amount for one query: {limit}", 400);
 
-            var elementsCount = _context.Products.Where(x => x.CathegoryId == cathegoryId).Count();
+            var elementsCount = _context.Products.Where(x => x.CategoryId == categoryId).Count();
 
             var pages = Page.CalculatePagesAmount(elementsCount, limit);
             if (pages <= 0) return new Page<ProductDtoBaseInfo>();
@@ -210,7 +210,7 @@ namespace MagazinchikAPI.Services
 
             var rawData =
                 _context.Products
-                .Where(x => x.CathegoryId == cathegoryId)
+                .Where(x => x.CategoryId == categoryId)
                 .Include(x => x.Photos)
                 .Include(x => x.Favourites)
                 .Include(x => x.CartProducts)
@@ -228,11 +228,11 @@ namespace MagazinchikAPI.Services
 
         }
 
-        private void FindAllParents(Cathegory? cathegory)
+        private void FindAllParents(Category? category)
         {
-            if (cathegory is null) return;
-            cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
-            if (cathegory.Parent is not null) FindAllParents(cathegory.Parent);
+            if (category is null) return;
+            category.Parent = _context.Categories.Find(category.ParentId);
+            if (category.Parent is not null) FindAllParents(category.Parent);
         }
 
         /* private static void SaveExceptProductToCookies(HttpContext context, long id)

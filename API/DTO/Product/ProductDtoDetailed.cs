@@ -19,7 +19,7 @@ namespace MagazinchikAPI.DTO
 
         public long Purchases { get; set; }
 
-        public CathegoryDtoBaseInfo? Cathegory {get; set;}
+        public CategoryDtoBaseInfo? Category {get; set;}
 
         public List<PhotoDtoProductBaseInfo>? Photos { get; set; }
 

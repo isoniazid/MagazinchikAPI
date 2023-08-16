@@ -130,7 +130,7 @@ namespace MagazinchikAPI.Migrations
                     b.ToTable("CartProducts");
                 });
 
-            modelBuilder.Entity("MagazinchikAPI.Model.Cathegory", b =>
+            modelBuilder.Entity("MagazinchikAPI.Model.Category", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -152,7 +152,7 @@ namespace MagazinchikAPI.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Cathegories");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("MagazinchikAPI.Model.Favourite", b =>
@@ -286,7 +286,7 @@ namespace MagazinchikAPI.Migrations
                     b.Property<float>("AverageRating")
                         .HasColumnType("real");
 
-                    b.Property<long?>("CathegoryId")
+                    b.Property<long?>("CategoryId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -320,7 +320,7 @@ namespace MagazinchikAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CathegoryId");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
                 });
@@ -456,9 +456,9 @@ namespace MagazinchikAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MagazinchikAPI.Model.Cathegory", b =>
+            modelBuilder.Entity("MagazinchikAPI.Model.Category", b =>
                 {
-                    b.HasOne("MagazinchikAPI.Model.Cathegory", "Parent")
+                    b.HasOne("MagazinchikAPI.Model.Category", "Parent")
                         .WithMany()
                         .HasForeignKey("ParentId");
 
@@ -527,11 +527,11 @@ namespace MagazinchikAPI.Migrations
 
             modelBuilder.Entity("MagazinchikAPI.Model.Product", b =>
                 {
-                    b.HasOne("MagazinchikAPI.Model.Cathegory", "Cathegory")
+                    b.HasOne("MagazinchikAPI.Model.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CathegoryId");
+                        .HasForeignKey("CategoryId");
 
-                    b.Navigation("Cathegory");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("MagazinchikAPI.Model.RefreshToken", b =>

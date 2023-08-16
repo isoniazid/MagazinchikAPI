@@ -19,4 +19,4 @@ namespace MagazinchikAPI.Validators
 
         public string? Description { get; set; }
 
-        public long CathegoryId {get; set;} */
+        public long CategoryId {get; set;} */

@@ -19,7 +19,7 @@ namespace MagazinchikAPI.Endpoints
             app.MapGet("api/product/random", GetRandom).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>();
 
-            app.MapGet("api/product/random-from-cathegory", GetRandomByCathegory).WithTags("Product")
+            app.MapGet("api/product/random-from-category", GetRandomByCategory).WithTags("Product")
             .Produces<List<DTO.ProductDtoBaseInfo>>();
 
             app.MapGet("api/product/personal", GetRandomPersonal).WithTags("Product")
@@ -28,7 +28,7 @@ namespace MagazinchikAPI.Endpoints
             app.MapGet("api/product/popular", GetPopular).WithTags("Product")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
-            app.MapGet("api/product/cathegory", GetByCathegory).WithTags("Product")
+            app.MapGet("api/product/category", GetByCategory).WithTags("Product")
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>().Produces<APIErrorMessage>(400);
 
         }
@@ -60,9 +60,9 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(await service.GetRandom(context, count));
         }
 
-        public async Task<IResult> GetRandomByCathegory(IProductService service, [FromQuery] long cathegoryId, [FromQuery] int count, HttpContext context)
+        public async Task<IResult> GetRandomByCategory(IProductService service, [FromQuery] long categoryId, [FromQuery] int count, HttpContext context)
         {
-            return Results.Ok(await service.GetRandomByCathegory(cathegoryId, context, count));
+            return Results.Ok(await service.GetRandomByCategory(categoryId, context, count));
         }
 
         public async Task<IResult> GetPopular(IProductService service, [FromQuery] int limit, [FromQuery] int page, HttpContext context)
@@ -70,9 +70,9 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(await service.GetPopular(limit, page, context));
         }
 
-        public async Task<IResult> GetByCathegory(IProductService service, [FromQuery] int limit, [FromQuery] int page, [FromQuery] long cathegoryId, HttpContext context)
+        public async Task<IResult> GetByCategory(IProductService service, [FromQuery] int limit, [FromQuery] int page, [FromQuery] long categoryId, HttpContext context)
         {
-            return Results.Ok(await service.GetByCathegory(cathegoryId, limit, page, context));
+            return Results.Ok(await service.GetByCategory(categoryId, limit, page, context));
         }
 
     }

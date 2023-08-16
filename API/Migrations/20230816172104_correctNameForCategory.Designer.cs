@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MagazinchikAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230714040532_PaymentidinOrderImplemented")]
-    partial class PaymentidinOrderImplemented
+    [Migration("20230816172104_correctNameForCategory")]
+    partial class correctNameForCategory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,6 +82,26 @@ namespace MagazinchikAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("MagazinchikAPI.Model.Banner", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("MagazinchikAPI.Model.CartProduct", b =>
@@ -184,6 +204,9 @@ namespace MagazinchikAPI.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
+
                     b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
@@ -233,6 +256,9 @@ namespace MagazinchikAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("BannerId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -244,6 +270,8 @@ namespace MagazinchikAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BannerId");
 
                     b.HasIndex("ProductId");
 
@@ -278,6 +306,9 @@ namespace MagazinchikAPI.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<long>("Purchases")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RateCount")
                         .HasColumnType("bigint");
 
                     b.Property<long>("ReviewCount")
@@ -470,7 +501,7 @@ namespace MagazinchikAPI.Migrations
             modelBuilder.Entity("MagazinchikAPI.Model.OrderProduct", b =>
                 {
                     b.HasOne("MagazinchikAPI.Model.Order", "Order")
-                        .WithMany()
+                        .WithMany("OrderProducts")
                         .HasForeignKey("OrderId");
 
                     b.HasOne("MagazinchikAPI.Model.Product", "Product")
@@ -484,9 +515,15 @@ namespace MagazinchikAPI.Migrations
 
             modelBuilder.Entity("MagazinchikAPI.Model.Photo", b =>
                 {
+                    b.HasOne("MagazinchikAPI.Model.Banner", "Banner")
+                        .WithMany("Photos")
+                        .HasForeignKey("BannerId");
+
                     b.HasOne("MagazinchikAPI.Model.Product", "Product")
                         .WithMany("Photos")
                         .HasForeignKey("ProductId");
+
+                    b.Navigation("Banner");
 
                     b.Navigation("Product");
                 });
@@ -524,6 +561,16 @@ namespace MagazinchikAPI.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MagazinchikAPI.Model.Banner", b =>
+                {
+                    b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("MagazinchikAPI.Model.Order", b =>
+                {
+                    b.Navigation("OrderProducts");
                 });
 
             modelBuilder.Entity("MagazinchikAPI.Model.Product", b =>
