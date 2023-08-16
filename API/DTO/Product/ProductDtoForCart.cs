@@ -26,7 +26,7 @@ namespace MagazinchikAPI.DTO.Product
 
         public void SetFavourite(Model.Product product, long userId)
         {
-            if (product.Favourites == null) throw new Exception("Must be empty list or null");
+            if (product.Favourites is null) throw new Exception("Must be empty list or null");
 
             if (!product.Favourites.Where(x => x.UserId == userId).IsNullOrEmpty())
                 IsFavourite = true;

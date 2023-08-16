@@ -38,7 +38,7 @@ namespace MagazinchikAPI.Services
 
             var productToAdd = _context.CartProducts.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId);
 
-            if (productToAdd == null)
+            if (productToAdd is null)
             {
                 //Check if product exists
                 _ = await _context.Products.FindAsync(productId)

@@ -19,7 +19,7 @@ namespace MagazinchikAPI.Services.Photo
 
             //NB need to put in outer method
             string folder;
-            if(photoToGet.ProductId == null) folder = $"Banners/{photoToGet.BannerId}";
+            if(photoToGet.ProductId is null) folder = $"Banners/{photoToGet.BannerId}";
             else folder = $"{photoToGet.ProductId}";
 
             var path = $"{Directory.GetCurrentDirectory()}/img/{folder}/{photoToGet.FileName}.jpg";

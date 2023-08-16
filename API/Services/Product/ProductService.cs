@@ -230,7 +230,7 @@ namespace MagazinchikAPI.Services
 
         private void FindAllParents(Cathegory? cathegory)
         {
-            if (cathegory == null) return;
+            if (cathegory is null) return;
             cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
             if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
         }

@@ -80,7 +80,7 @@ namespace MagazinchikAPI.Services
 
         public static bool IsFavourite(Product product, long? userId)
         {
-            if (product.Favourites == null || userId == null) return false;
+            if (product.Favourites is null || userId is null) return false;
 
             if (product.Favourites.Where(x => x.UserId == userId).IsNullOrEmpty()) return false;
 
@@ -89,7 +89,7 @@ namespace MagazinchikAPI.Services
 
         public static bool IsInCart(Product product, long? userId)
         {
-            if (product.CartProducts == null || userId == null) return false;
+            if (product.CartProducts is null || userId is null) return false;
 
             if (product.CartProducts.Where(x => x.UserId == userId).IsNullOrEmpty()) return false;
 
