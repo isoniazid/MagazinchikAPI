@@ -3,6 +3,7 @@ using FluentValidation;
 using MagazinchikAPI.DTO;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace MagazinchikAPI.Services
 {
@@ -12,12 +13,14 @@ namespace MagazinchikAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly CommonService _commonService;
+        private readonly IDistributedCache _cache;
 
-        public ProductService(ApplicationDbContext context, IMapper mapper, CommonService commonService)
+        public ProductService(ApplicationDbContext context, IMapper mapper, CommonService commonService, IDistributedCache cache)
         {
             _commonService = commonService;
             _context = context;
             _mapper = mapper;
+            _cache = cache;
         }
         public async Task Create(ProductDtoCreate input)
         {//NB NO VALIDATORS!!!

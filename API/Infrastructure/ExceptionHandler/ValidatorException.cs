@@ -7,7 +7,7 @@ public class ValidatorException : Exception
 
     public ValidatorException(FluentValidation.Results.ValidationResult validationResults)
     {
-        this.StatusCode = StatusCodes.Status422UnprocessableEntity;  ;
+        StatusCode = StatusCodes.Status422UnprocessableEntity;
         foreach(var error in validationResults.Errors)
         {
             ValidationErrors.Add(error.PropertyName, error.ErrorMessage);

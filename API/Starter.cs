@@ -61,7 +61,13 @@ public static class Starter
 
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(DB_STR));
 
-        AddMicroServices(builder);
+        builder.Services.AddStackExchangeRedisCache(x =>
+        {
+            x.Configuration = builder.Configuration.GetConnectionString("Redis");
+            x.InstanceName = "MagazinchikApiCache_";
+        });
+
+        AddCustomServices(builder);
 
         builder.Services.AddQuartz(ConfigureQuartz);
         builder.Services.AddQuartzServer(x => x.WaitForJobsToComplete = true);
@@ -137,7 +143,7 @@ public static class Starter
         Console.ResetColor();
     }
 
-    private static void AddMicroServices(WebApplicationBuilder builder)
+    private static void AddCustomServices(WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton(new Yandex.Checkout.V3.Client(shopId: SHOP_ID, secretKey: SHOP_SECRET_KEY).MakeAsync());
         builder.Services.AddSingleton<IPaymentService, PaymentService>();
@@ -155,7 +161,7 @@ public static class Starter
 
 
         Console.ForegroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine("MicroServices added");
+        Console.WriteLine("Custom Services added");
         Console.ResetColor();
     }
 

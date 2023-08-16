@@ -18,12 +18,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.10" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.31.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
     <PackageReference Include="Quartz" Version="3.6.3" />
     <PackageReference Include="Quartz.AspNetCore" Version="3.6.3" />
     <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.6.3" />
     <PackageReference Include="SlugGenerator" Version="2.0.2" />
+    <PackageReference Include="stackexchange.redis" Version="2.6.122" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.31.0" />
     <PackageReference Include="Yandex.Checkout.V3" Version="1.7.0" />
