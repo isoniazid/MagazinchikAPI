@@ -175,9 +175,9 @@ namespace MagazinchikAPI.Services
 
         private async Task<(bool exists, string? prop)> UserExists(string name, string email)
         {
-            if(await _context.Users.FirstOrDefaultAsync(x => x.Name == name) != null) return (exists: true, prop: "name");
+            if(await _context.Users.FirstOrDefaultAsync(x => x.Name == name) is not null) return (exists: true, prop: "name");
 
-            if(await _context.Users.FirstOrDefaultAsync(x => x.Email == email) != null) return (exists: true, prop: "email");
+            if(await _context.Users.FirstOrDefaultAsync(x => x.Email == email) is not null) return (exists: true, prop: "email");
             
             return (exists: false, prop: null);
         }

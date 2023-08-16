@@ -24,7 +24,7 @@ namespace MagazinchikAPI.Services.Favourite
             var jwtId = await _commonService.UserIsOk(context);
 
 
-            if (_context.Favourites.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId) != null)
+            if (_context.Favourites.FirstOrDefault(x => x.ProductId == productId && x.UserId == jwtId) is not null)
                 throw new APIException("Already added to favourites", 400);
 
             _ = await _context.Products.FindAsync(productId)

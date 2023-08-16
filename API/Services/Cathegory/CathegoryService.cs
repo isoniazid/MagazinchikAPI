@@ -32,7 +32,7 @@ namespace MagazinchikAPI.Services
             CHECKING IF THE REQUESTER IS ADMIN....
             */
 
-            if (_context.Cathegories.FirstOrDefault(x => x.Name == input.Name && x.ParentId == input.ParentId) != null)
+            if (_context.Cathegories.FirstOrDefault(x => x.Name == input.Name && x.ParentId == input.ParentId) is not null)
                 throw new APIException("Cathegory already exists", 400);
 
             var cathegoryToSave = _mapper.Map<Model.Cathegory>(input);
@@ -40,7 +40,7 @@ namespace MagazinchikAPI.Services
 
             FindAllParents(cathegoryToSave);
 
-            if (cathegoryToSave.Parent != null && !cathegoryToSave.Parent.IsParent)
+            if (cathegoryToSave.Parent is not null && !cathegoryToSave.Parent.IsParent)
                 throw new APIException($"The Cathegory {cathegoryToSave.Parent.Name} cant't be a parent", 400);
 
             _context.Cathegories.Add(cathegoryToSave);
@@ -120,7 +120,7 @@ namespace MagazinchikAPI.Services
         private void FindAllParents(Cathegory cathegory)
         {
             cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
-            if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
+            if (cathegory.Parent is not null) FindAllParents(cathegory.Parent);
         }
 
     }

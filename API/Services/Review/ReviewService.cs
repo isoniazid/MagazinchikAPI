@@ -39,7 +39,7 @@ namespace MagazinchikAPI.Services
             productToReview.RateCount++;
 
             //Check if review was already created
-            if (_context.Reviews.FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId) != null)
+            if (_context.Reviews.FirstOrDefault(x => x.UserId == jwtId && x.ProductId == input.ProductId) is not null)
                 throw new APIException("Review for this product was already left", StatusCodes.Status400BadRequest);
 
             var reviewToSave = _mapper.Map<Review>(input);
@@ -94,7 +94,7 @@ namespace MagazinchikAPI.Services
 
             var pageData = _mapper.Map<List<ReviewDtoBaseInfo>>(
                 _context.Reviews.Include(x => x.User)
-                .Where(x => x.ProductId == productId && x.Text != null)
+                .Where(x => x.ProductId == productId && x.Text is not null)
                 .OrderByDescending(x => x.UpdatedAt)
                 .Skip(offset * limit)
                 .Take(limit));

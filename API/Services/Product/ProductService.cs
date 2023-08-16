@@ -64,7 +64,7 @@ namespace MagazinchikAPI.Services
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
 
-            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
+            if (jwtId is not null) CommonService.SetFlags(result, rawResult, jwtId);
 
             return new Page<ProductDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = result, Pages = pages, ElementsCount = elementsCount };
@@ -88,7 +88,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<ProductDtoDetailed>(rawResult);
 
-            if(jwtId != null) result.SetFlags(rawResult, (long)jwtId);
+            if(jwtId is not null) result.SetFlags(rawResult, (long)jwtId);
             //SaveExceptProductToCookies(httpContext, result.Id);
 
             return result;
@@ -118,7 +118,7 @@ namespace MagazinchikAPI.Services
 
             var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(rawData);
 
-            if (jwtId != null) CommonService.SetFlags(pageData, rawData, jwtId);
+            if (jwtId is not null) CommonService.SetFlags(pageData, rawData, jwtId);
 
             return new Page<ProductDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount };
@@ -143,7 +143,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
-            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
+            if (jwtId is not null) CommonService.SetFlags(result, rawResult, jwtId);
 
             return result;
         }
@@ -190,7 +190,7 @@ namespace MagazinchikAPI.Services
 
             var result = _mapper.Map<List<ProductDtoBaseInfo>>(rawResult);
 
-            if (jwtId != null) CommonService.SetFlags(result, rawResult, jwtId);
+            if (jwtId is not null) CommonService.SetFlags(result, rawResult, jwtId);
 
             return result;
         }
@@ -220,7 +220,7 @@ namespace MagazinchikAPI.Services
 
             var pageData = _mapper.Map<List<ProductDtoBaseInfo>>(rawData);
 
-            if (jwtId != null) CommonService.SetFlags(pageData, rawData, jwtId);
+            if (jwtId is not null) CommonService.SetFlags(pageData, rawData, jwtId);
 
             return new Page<ProductDtoBaseInfo>()
             { CurrentOffset = offset, CurrentPage = pageData, Pages = pages, ElementsCount = elementsCount };
@@ -232,7 +232,7 @@ namespace MagazinchikAPI.Services
         {
             if (cathegory is null) return;
             cathegory.Parent = _context.Cathegories.Find(cathegory.ParentId);
-            if (cathegory.Parent != null) FindAllParents(cathegory.Parent);
+            if (cathegory.Parent is not null) FindAllParents(cathegory.Parent);
         }
 
         /* private static void SaveExceptProductToCookies(HttpContext context, long id)

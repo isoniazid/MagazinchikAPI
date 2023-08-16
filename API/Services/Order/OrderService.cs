@@ -69,7 +69,7 @@ namespace MagazinchikAPI.Services
         public async Task CheckPaymentsForOrders()//For Quartz
         {
             var ordersToCheck = await _context.Orders
-            .Where(x => (x.OrderStatus == OrderStatus.AWAITING || x.OrderStatus == OrderStatus.CAPTURED) && x.PaymentId != null)
+            .Where(x => (x.OrderStatus == OrderStatus.AWAITING || x.OrderStatus == OrderStatus.CAPTURED) && x.PaymentId is not null)
             .Include(x => x.OrderProducts)
             .ToListAsync();
 
@@ -96,7 +96,7 @@ namespace MagazinchikAPI.Services
 
             var ordersToCheck = await _context.Orders.Where(
             x => (x.OrderStatus == OrderStatus.AWAITING || x.OrderStatus == OrderStatus.CAPTURED)
-             && x.PaymentId != null
+             && x.PaymentId is not null
              && x.UserId == jwtId)
              .Include(x => x.OrderProducts)
              .ToListAsync();
