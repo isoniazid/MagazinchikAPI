@@ -94,7 +94,7 @@ namespace MagazinchikAPI.Services
 
             var pageData = _mapper.Map<List<ReviewDtoBaseInfo>>(
                 _context.Reviews.Include(x => x.User)
-                .Where(x => x.ProductId == productId && x.Text is not null)
+                .Where(x => x.ProductId == productId && x.Text != null)
                 .OrderByDescending(x => x.UpdatedAt)
                 .Skip(offset * limit)
                 .Take(limit));

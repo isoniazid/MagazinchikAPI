@@ -71,7 +71,7 @@ namespace MagazinchikAPI.Services
 
         public async Task<List<CathegoryDtoDescendants>> GetAll()
         {
-            var rawResult = await _context.Cathegories.Where(x => x.ParentId is null).ToListAsync();
+            var rawResult = await _context.Cathegories.Where(x => x.ParentId != null).ToListAsync();
 
             foreach(var element in rawResult) await FindAllDescendants(element);
 
