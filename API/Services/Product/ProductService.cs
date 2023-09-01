@@ -3,6 +3,7 @@ using FluentValidation;
 using MagazinchikAPI.DTO;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
+using MagazinchikAPI.Services.CacheWrapper;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace MagazinchikAPI.Services
@@ -13,9 +14,10 @@ namespace MagazinchikAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly CommonService _commonService;
-        private readonly IDistributedCache _cache;
+        private readonly ICacheWrapperService _cache;
+        private readonly string _recordPrefix = "MagazinchikAPI_Products";
 
-        public ProductService(ApplicationDbContext context, IMapper mapper, CommonService commonService, IDistributedCache cache)
+        public ProductService(ApplicationDbContext context, IMapper mapper, CommonService commonService, ICacheWrapperService cache)
         {
             _commonService = commonService;
             _context = context;
@@ -60,7 +62,7 @@ namespace MagazinchikAPI.Services
 
             foreach (var element in rawResult)
             {
-                FindAllParents(element.Category);
+                await FindAllParents(element.Category);
                 result.Add(_mapper.Map<ProductDtoBaseInfo>(element));
             }
 
@@ -82,7 +84,7 @@ namespace MagazinchikAPI.Services
             .FirstOrDefaultAsync(x => x.Id == productId)
             ?? throw new APIException("No such product", 404);
 
-            FindAllParents(rawResult.Category);
+            await FindAllParents(rawResult.Category);
 
 
 
@@ -228,11 +230,11 @@ namespace MagazinchikAPI.Services
 
         }
 
-        private void FindAllParents(Category? category)
+        private async Task FindAllParents(Category? category)
         {
             if (category is null) return;
             category.Parent = _context.Categories.Find(category.ParentId);
-            if (category.Parent is not null) FindAllParents(category.Parent);
+            await FindAllParents(category.Parent);
         }
 
         /* private static void SaveExceptProductToCookies(HttpContext context, long id)

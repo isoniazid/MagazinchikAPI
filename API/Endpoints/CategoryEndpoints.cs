@@ -12,7 +12,8 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("api/category/create", CreateCategory).WithTags("Admin")
             .Produces<CategoryDtoCreated>(200)
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
-            .Produces<APIErrorMessage>(400);
+            .Produces<APIErrorMessage>(400)
+            .Produces(403);
 
 
             app.MapGet("api/category/random", GetRandomCategories).WithTags("Category")
@@ -33,6 +34,8 @@ namespace MagazinchikAPI.Endpoints
             .Produces<CategoryDtoDescendants>(200);
         }
 
+
+        [Authorize(Roles = "ADMIN")]
         public async Task<IResult> CreateCategory(ICategoryService service, [FromBody] CategoryDtoCreate dto)
         {
             return Results.Ok(await service.CreateCategory(dto));

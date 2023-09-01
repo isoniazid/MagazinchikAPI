@@ -1,3 +1,4 @@
+using MagazinchikAPI.Services.CacheWrapper;
 using MagazinchikAPI.DTO;
 using MagazinchikAPI.Infrastructure;
 using MagazinchikAPI.Model;
@@ -9,37 +10,13 @@ namespace MagazinchikAPI.Services
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly IDistributedCache _cache;
-        private readonly string _recordPrefix = "MagazinhikAPI_UserCheck__";
+        private readonly ICacheWrapperService _cache;
+        private readonly string _recordPrefix = "MagazinhikAPI_UserCheck";
 
-        public CommonService(ApplicationDbContext context, IDistributedCache cache)
+        public CommonService(ApplicationDbContext context, ICacheWrapperService cache)
         {
             _context = context;
             _cache = cache;
-        }
-
-        private async Task<User?> TryGetUserFromCache(long userId)
-        {
-            string recordKey = $"{_recordPrefix}{DateTime.Now:dd_MM_yyyy_hh_mm}__{userId}";
-
-            var result = await _cache.GetRecordAsync<User>(recordKey);
-
-            //NB need to add logger...
-                if(result is not null)
-                {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("Loaded usr from cache");
-                Console.ResetColor();
-                }
-
-
-            return result;
-        }
-
-        private async Task SaveUserToCache(User user)
-        {
-            string recordKey = $"{_recordPrefix}{DateTime.Now.ToString("dd_MM_yyyy_hh_mm")}__{user.Id}";
-            await _cache.SetRecordAsync(recordKey, user);
         }
 
         public async Task<long> UserIsOk(HttpContext context)
@@ -47,12 +24,14 @@ namespace MagazinchikAPI.Services
             long jwtId = Convert.ToInt64(context.User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new APIException("Broken acces token", 401));
 
-            var cachedUser = await TryGetUserFromCache(jwtId);
+
+            string recordKey = _cache.CreateRecordKey(_recordPrefix, jwtId);
+            var cachedUser = await _cache.TryGetFromCacheAsync<User>(recordKey);
 
             if (cachedUser is null)
             {
                 var userToCache = await _context.Users.FindAsync(jwtId) ?? throw new APIException("Undefined user", 401);
-                await SaveUserToCache(userToCache);
+                await _cache.SaveToCacheAsync(recordKey, userToCache);
             }
 
             return jwtId;
@@ -71,9 +50,16 @@ namespace MagazinchikAPI.Services
 
             var jwtId = Convert.ToInt64(jwtKey);
 
-            var result = await TryGetUserFromCache(jwtId) ?? await _context.Users.FindAsync(jwtId)
+            string recordKey = _cache.CreateRecordKey(_recordPrefix, jwtId);
+            var result = await _cache.TryGetFromCacheAsync<User>(recordKey);
+
+            if (result is null)
+            {
+                result = await _context.Users.FindAsync(jwtId)
             ?? throw new APIException("Undefined user", 401);
 
+                await _cache.SaveToCacheAsync(recordKey, result);
+            }
 
             return result.Id;
         }

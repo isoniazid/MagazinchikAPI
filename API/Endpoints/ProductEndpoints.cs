@@ -1,4 +1,5 @@
 using MagazinchikAPI.Infrastructure.ExceptionHandler;
+using MagazinchikAPI.Model;
 using MagazinchikAPI.Services;
 
 namespace MagazinchikAPI.Endpoints
@@ -11,7 +12,8 @@ namespace MagazinchikAPI.Endpoints
             .Produces<DTO.Page<DTO.ProductDtoBaseInfo>>();
 
             app.MapPost("api/product/create", Create).WithTags("Admin")
-            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404).Produces<APIErrorMessage>(400);
+            .Produces<APIErrorMessage>(401).Produces<APIErrorMessage>(404)
+            .Produces<APIErrorMessage>(400).Produces(403);
 
             app.MapGet("api/product/detail", GetDetailedInfo).WithTags("Product")
             .Produces<DTO.ProductDtoBaseInfo>().Produces<APIErrorMessage>(404);
@@ -43,6 +45,7 @@ namespace MagazinchikAPI.Endpoints
             return Results.Ok(await service.GetDetailedInfo(productId, context));
         }
 
+         [Authorize(Roles = "ADMIN")]
         public async Task<IResult> Create(IProductService service, [FromBody] DTO.ProductDtoCreate dto)
         {
             await service.Create(dto);

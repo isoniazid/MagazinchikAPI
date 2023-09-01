@@ -11,7 +11,8 @@ namespace MagazinchikAPI.Endpoints
             app.MapPost("/api/banner/create", CreateBanner).WithTags("Admin")
             .Produces(StatusCodes.Status200OK)
             .Produces<ValidatorErrorMessage>(StatusCodes.Status422UnprocessableEntity)
-            .Produces<APIErrorMessage>(400);
+            .Produces<APIErrorMessage>(400)
+            .Produces(403);
 
             app.MapGet("/api/banner/active", GetActiveBanner).WithTags("Banner")
             .Produces<BannerDtoBaseInfo>(StatusCodes.Status200OK)
@@ -19,6 +20,7 @@ namespace MagazinchikAPI.Endpoints
 
         }
 
+        [Authorize(Roles = "ADMIN")]
         public async Task<IResult> CreateBanner(IBannerService service, [FromBody] BannerDtoCreate input)
         {
             await service.Create(input);

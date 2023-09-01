@@ -11,6 +11,7 @@ using MagazinchikAPI.Services.Jobs;
 using MagazinchikAPI.Services.Address;
 using MagazinchikAPI.Services.Banner;
 using MagazinchikAPI.Services.Favourite;
+using MagazinchikAPI.Services.CacheWrapper;
 
 public static class Starter
 {
@@ -147,6 +148,7 @@ public static class Starter
     {
         builder.Services.AddSingleton(new Yandex.Checkout.V3.Client(shopId: SHOP_ID, secretKey: SHOP_SECRET_KEY).MakeAsync());
         builder.Services.AddSingleton<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<ICacheWrapperService, CacheWrapperService>();
         builder.Services.AddScoped<CommonService>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
